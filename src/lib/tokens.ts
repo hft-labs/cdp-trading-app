@@ -1,14 +1,12 @@
 import { base, baseSepolia } from 'viem/chains';
-import type { Token } from '@/types/token';
 
-export const ethToken: Token = {
-  name: 'ETH',
-  address: '',
-  symbol: 'ETH',
-  decimals: 18,
-  image:
-    'https://wallet-api-production.s3.amazonaws.com/uploads/tokens/eth_288.png',
-  chainId: base.id,
+export type Token = {
+  name: string;
+  address: string;
+  symbol: string;
+  decimals: number;
+  image: string;
+  chainId: number;
 };
 
 export const ethSepoliaToken: Token = {
@@ -110,7 +108,6 @@ const eurcToken: Token = {
 };
 
 const baseTokens = [
-  ethToken,
   wethToken,
   usdcToken,
   degenToken,
@@ -120,5 +117,10 @@ const baseTokens = [
   eUsdToken,
   eurcToken,
 ] as const;
+
+export const getTokenBySymbol = (symbol: string) => {
+  const token = baseTokens.find((token) => token.symbol === symbol && token.chainId === base.id);
+  return token;
+}
 
 export { baseTokens };
