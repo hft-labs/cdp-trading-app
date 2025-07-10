@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { RootProviders } from "@/components/providers/root-provider";
-
 import "./globals.css";
 import { AccountProvider } from "@/components/providers/account-provider";
 import { getAccount } from "@/lib/account";

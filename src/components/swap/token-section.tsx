@@ -6,8 +6,7 @@ import { MaxButton } from "./max-button"
 import { TokenMenu } from "./token-menu"
 import { useBalance } from "@/hooks/use-balance"
 import { cn } from "@/lib/utils"
-import { useUser } from "@stackframe/stack"
-
+import { usePrivy } from "@privy-io/react-auth";
 export const TokenSection = ({
     type
   }: {
@@ -20,8 +19,8 @@ export const TokenSection = ({
         fromToken,
         toToken,
     } = useSwapProvider();
-    const user = useUser(); 
-    const isLoggedIn = !!user;
+    const { ready, user } = usePrivy(); 
+    const isLoggedIn = ready && user !== null;
 
  
     const handleSetAmount = (value: string) => {
