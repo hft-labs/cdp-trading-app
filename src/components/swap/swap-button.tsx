@@ -10,10 +10,19 @@ export function SwapButton() {
   const user = useUser();
   const isSignedIn = user !== null;
   const router = useRouter();
-
-  const onClick = () => {
+  const { fromAmount, fromToken, toToken } = useSwapProvider();
+  const onClick = async () => {
     if (isSignedIn) {
-      console.log("handleTokenSwap");
+      const response = await fetch("/api/swap", {
+        method: "POST",
+        body: JSON.stringify({
+          fromToken: fromToken,
+          toToken: toToken,
+          fromAmount: fromAmount
+        })
+      });
+      const data = await response.json();
+      console.log(data);
     } else {
       router.push("/handler/sign-in");
     }

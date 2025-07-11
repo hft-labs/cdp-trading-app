@@ -52,7 +52,7 @@ export const Wallet = () => {
 	};
 
 	if (!accountAddress) {
-		throw new Error("Smart account address is required");
+		return null;
 	}
 
 	const { handleOnramp } = useOnramp({
