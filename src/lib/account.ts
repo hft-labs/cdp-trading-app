@@ -39,6 +39,7 @@ export async function getAccount(userId: string | undefined) {
             address: smartAccountAddress,
             owner
         })
+
         return {
             owner,
             smartAccount

@@ -25,6 +25,7 @@ export async function GET() {
 			Authorization: `Bearer ${jwt}`,
 		},
 	});
+	
 
 	const data = await response.json();
 	const latestTransaction = data.transactions[0];

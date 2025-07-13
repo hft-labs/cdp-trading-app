@@ -8,6 +8,30 @@ if (!key_name || !key_secret) {
     throw new Error("No API key found");
 }
 
+function formatPrivateKey(key: string): string {
+    if (!key) {
+        throw new Error("Private key is undefined or empty");
+    }
+
+    const normalizedKey = key.replace(/\\n/g, '\n');
+    
+    const matches = normalizedKey.match(/-----BEGIN EC PRIVATE KEY-----([\s\S]*?)-----END EC PRIVATE KEY-----/);
+    if (!matches) {
+        throw new Error("Invalid key format: Missing proper BEGIN/END headers");
+    }
+    
+    const keyContent = matches[1].replace(/[\r\n\s]+/g, '');
+    
+    const formattedKey = [
+        "-----BEGIN EC PRIVATE KEY-----",
+        keyContent,
+        "-----END EC PRIVATE KEY-----"
+    ].join('\n');
+    
+    
+    return formattedKey;
+}
+
 export type CreateRequestParams = {
     request_method: "GET" | "POST";
     request_path: string;
@@ -50,7 +74,8 @@ export async function createRequest({
             },
         };
 
-        const jwt = sign(payload, key_secret, signOptions);
+        const formattedKey = formatPrivateKey(key_secret);
+        const jwt = sign(payload, formattedKey, signOptions);
 
         return { url, jwt };
     } catch (error) {
