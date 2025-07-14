@@ -2,6 +2,7 @@
 
 import { UserButton } from "@stackframe/stack";
 import { useTheme } from "next-themes";
+import { Wallet } from "./wallet";
 
 export function Navbar() {
 	const { resolvedTheme, setTheme } = useTheme();
@@ -21,11 +22,7 @@ export function Navbar() {
 				</div>
 				<div className="flex items-center">
 					<div className="flex gap-4 items-center">
-						<UserButton
-							colorModeToggle={() =>
-								setTheme(resolvedTheme === "light" ? "dark" : "light")
-							}
-						/>
+						
 					</div>
 				</div>
 			</div>
