@@ -119,6 +119,7 @@ interface AssetsTableProps {
 }
 
 export function AssetsTable({ positions }: AssetsTableProps) {
+    console.log('positions', positions);
     return (
         <div className="rounded-2xl overflow-hidden shadow-xl bg-[#181A20] border border-[#23242A] max-w-4xl mx-auto mt-8">
             <Table className="min-w-full">
@@ -130,7 +131,7 @@ export function AssetsTable({ positions }: AssetsTableProps) {
                         <TableHead className="text-white font-bold text-sm px-6 py-4 border-none text-right">Value</TableHead>
                     </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className="bg-black">
                     {positions.map((position, idx) => {
                         const price = position.price
                         const value = position.value

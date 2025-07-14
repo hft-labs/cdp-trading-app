@@ -102,7 +102,6 @@ export async function approveTokenAllowance(
     
     console.log(`Approval user operation hash: ${userOpResult.userOpHash}`);
     
-    // Wait for approval user operation to be confirmed
     const receipt = await smartAccount.waitForUserOperation({
       userOpHash: userOpResult.userOpHash,
     });

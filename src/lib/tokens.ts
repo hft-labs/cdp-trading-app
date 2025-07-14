@@ -123,4 +123,9 @@ export const getTokenBySymbol = (symbol: string) => {
   return token;
 }
 
+export const getTokenByAddress = (address: string) => {
+  const token = baseTokens.find((token) => token.address === address && token.chainId === base.id);
+  return token;
+}
+
 export { baseTokens };

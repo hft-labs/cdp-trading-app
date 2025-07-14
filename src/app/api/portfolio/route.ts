@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { baseTokens } from "@/lib/tokens";
+import { getTokenByAddress } from "@/lib/tokens";
 import { formatUnits } from "viem";
-import { BalanceResponse } from "./types";
 import { getPrice } from "./utils";
+import { CdpClient } from "@coinbase/cdp-sdk";
 
-const rpcUrl = process.env.CDP_RPC_URL;
-if (rpcUrl === undefined) {
-    throw new Error("CDP_RPC_URL is not set");
-}
+const cdp = new CdpClient({
+    apiKeyId: process.env.CDP_API_KEY_ID,
+    apiKeySecret: process.env.CDP_API_KEY_SECRET,
+    walletSecret: process.env.CDP_WALLET_SECRET
+});
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -17,44 +18,33 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Address is required" }, { status: 400 });
     }
 
-    const body = {
-        jsonrpc: "2.0",
-        id: 1,
-        method: "cdp_listBalances",
-        params: [
-            {
-                address: address,
-                pageToken: "",
-                pageSize: 200
-            }
-        ]
-    };
-
-    const response = await fetch(rpcUrl!, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-    const priceMap = new Map<string, number>();
-    await Promise.all(baseTokens.map(async (token) => {
-        const price = await getPrice(token.symbol);
-        priceMap.set(token.symbol, price);
-    }));
-    const data = await response.json() as BalanceResponse;
-
-    const tokens = baseTokens.map((token) => {
-        const rawBalance = data.result.balances.find((balance) => balance.asset.groupId === token.address);
-        const formattedBalance = rawBalance ? formatUnits(BigInt(rawBalance.value || 0), token.decimals) : "0";
-        return {
-            ...token,
-            assetId: rawBalance?.asset?.id,
-            balance: formattedBalance,
-            price: priceMap.get(token.symbol) || 0,
-            value: parseFloat(formattedBalance) * (priceMap.get(token.symbol) || 0)
-        }
+    const balancesResponse = await cdp.evm.listTokenBalances({
+        address: address as `0x${string}`,
+        network: "base",
     });
 
-    return NextResponse.json(tokens);
+    const tokens = await Promise.all(
+        (balancesResponse.balances || []).map(async (balance: any) => {
+            const tokenInfo = getTokenByAddress(balance.token?.contractAddress);
+            if (!tokenInfo) return null;
+            const symbol = tokenInfo.symbol;
+            const decimals = tokenInfo.decimals;
+            const balanceFormatted = formatUnits(BigInt(balance.amount.amount), decimals);
+            const price = symbol ? await getPrice(symbol) : 0;
+            const value = parseFloat(balanceFormatted) * price;
+            return {
+                symbol,
+                name: tokenInfo.name,
+                address: tokenInfo.address,
+                decimals,
+                image: tokenInfo.image,
+                chainId: tokenInfo.chainId,
+                balance: balanceFormatted,
+                price: price,
+                value: value,
+            };
+        })
+    );
+    const filteredTokens = tokens.filter(Boolean);
+    return NextResponse.json({ positions: filteredTokens });
 }
