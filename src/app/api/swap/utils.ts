@@ -1,4 +1,3 @@
-import { CdpClient } from "@coinbase/cdp-sdk";
 import { 
   createPublicClient, 
   http, 
@@ -8,12 +7,7 @@ import {
   type Address,
 } from "viem";
 import { base } from "viem/chains";
-
-const cdp = new CdpClient({
-    apiKeyId: process.env.CDP_API_KEY_ID,
-    apiKeySecret: process.env.CDP_API_KEY_SECRET,
-    walletSecret: process.env.CDP_WALLET_SECRET
-});
+import { cdp } from "@/lib/cdp-client";
 
 const PERMIT2_ADDRESS: Address = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
 

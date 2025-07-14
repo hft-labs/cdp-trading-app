@@ -1,13 +1,7 @@
 import { getTokenBySymbol } from "@/lib/tokens";
 import { parseUnits } from "viem";
-import { CdpClient } from "@coinbase/cdp-sdk";
 import { formatUnits } from "viem";
-
-const cdp = new CdpClient({
-    apiKeyId: process.env.CDP_API_KEY_ID,
-    apiKeySecret: process.env.CDP_API_KEY_SECRET,
-    walletSecret: process.env.CDP_WALLET_SECRET
-});
+import { cdp } from "@/lib/cdp-client";
 
 
 export const getPrice = async (symbol: string): Promise<number> => {

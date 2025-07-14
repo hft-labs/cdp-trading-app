@@ -1,13 +1,7 @@
 import { wallets } from '../db/schema';
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
-import { CdpClient } from '@coinbase/cdp-sdk';
-
-const cdpClient = new CdpClient({
-    apiKeyId: process.env.CDP_API_KEY_ID,
-    apiKeySecret: process.env.CDP_API_KEY_SECRET,
-    walletSecret: process.env.CDP_WALLET_SECRET
-});
+import { cdp } from './cdp-client';
 
 export async function getAccount(userId: string | undefined) {
     try {
@@ -32,10 +26,10 @@ export async function getAccount(userId: string | undefined) {
             ownerAddress = accountData[0].owner_address as `0x${string}`
             smartAccountAddress = accountData[0].smart_account_address as `0x${string}`
         }
-        const owner = await cdpClient.evm.getAccount({
+        const owner = await cdp.evm.getAccount({
             address: ownerAddress,
         })
-        const smartAccount = await cdpClient.evm.getSmartAccount({
+        const smartAccount = await cdp.evm.getSmartAccount({
             address: smartAccountAddress,
             owner
         })
@@ -52,8 +46,8 @@ export async function getAccount(userId: string | undefined) {
 
 export async function createSmartAccount(userId: string) {
     try {
-        const owner = await cdpClient.evm.createAccount();
-        const smartAccount = await cdpClient.evm.createSmartAccount({
+        const owner = await cdp.evm.createAccount();
+        const smartAccount = await cdp.evm.createSmartAccount({
             owner,
         })
         const account = {
