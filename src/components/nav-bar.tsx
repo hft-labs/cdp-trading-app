@@ -22,12 +22,7 @@ export function Navbar() {
 				</div>
 				<div className="flex items-center">
 					<div className="flex gap-4 items-center">
-						<Wallet />
-						<UserButton
-							colorModeToggle={() =>
-								setTheme(resolvedTheme === "light" ? "dark" : "light")
-							}
-						/>
+						
 					</div>
 				</div>
 			</div>

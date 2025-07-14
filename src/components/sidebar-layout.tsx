@@ -13,22 +13,11 @@ import { Typography } from "@/components/ui/typography";
 import { buttonVariants } from "@/components/ui/button";
 import {
     Book,
-    Globe,
     KeyRound,
     ArrowDownUp,
-    Link as LinkIcon,
-    LockKeyhole,
     LucideIcon,
-    Mail,
     Menu,
-    Palette,
     Settings,
-    Settings2,
-    ShieldEllipsis,
-    SquarePen,
-    User,
-    Users,
-    Webhook,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
@@ -61,15 +50,15 @@ type Hidden = {
 const navigationItems: (Label | Item | Hidden)[] = [
     {
         name: "Swap",
-        href: "/swap",
-        regex: /^\/swap\/?$/,
+        href: "/",
+        regex: /^\/?$/,
         icon: ArrowDownUp,
         type: 'item'
     },
     {
         name: "Portfolio",
-        href: "/",
-        regex: /^\/projects\/[^\/]+\/?$/,
+        href: "/portfolio",
+        regex: /^\/portfolio\/?$/,
         icon: WalletIcon,
         type: 'item'
     },
@@ -91,20 +80,6 @@ const navigationItems: (Label | Item | Hidden)[] = [
         },
         regex: /^\/projects\/[^\/]+\/webhooks\/[^\/]+$/,
         type: 'hidden',
-    },
-    {
-        name: "Stack Auth Keys",
-        href: "/api-keys",
-        regex: /^\/projects\/[^\/]+\/api-keys$/,
-        icon: KeyRound,
-        type: 'item'
-    },
-    {
-        name: "Project Settings",
-        href: "/project-settings",
-        regex: /^\/projects\/[^\/]+\/project-settings$/,
-        icon: Settings,
-        type: 'item'
     }
 ];
 
@@ -132,7 +107,7 @@ function NavItem({ item, href, onClick }: { item: Item, href: string, onClick?: 
     );
 }
 
-function SidebarContent({ projectId, onNavigate }: { projectId: string, onNavigate?: () => void }) {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     return (
         <div className="flex flex-col h-full items-stretch">
             <div className="h-14 border-b flex items-center px-2 shrink-0">
@@ -148,7 +123,7 @@ function SidebarContent({ projectId, onNavigate }: { projectId: string, onNaviga
                         </Typography>;
                     } else if (item.type === 'item') {
                         return <div key={index} className="flex px-2">
-                            <NavItem item={item} onClick={onNavigate} href={`/projects/${projectId}${item.href}`} />
+                            <NavItem item={item} onClick={onNavigate} href={`${item.href}`} />
                         </div>;
                     }
                 })}
@@ -174,14 +149,14 @@ function SidebarContent({ projectId, onNavigate }: { projectId: string, onNaviga
 }
 
 
-export default function SidebarLayout(props: { projectId: string, children?: React.ReactNode }) {
+export default function SidebarLayout(props: { children?: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { resolvedTheme, setTheme } = useTheme();
 
     return (
         <div className="w-full flex">
             <div className="flex-col border-r min-w-[240px] h-screen sticky top-0 hidden md:flex backdrop-blur-md bg-white/20 dark:bg-black/20 z-[10]">
-                <SidebarContent projectId={props.projectId} />
+                <SidebarContent />
             </div>
             <div className="flex flex-col flex-grow w-0">
                 <div className="h-14 border-b flex items-center justify-between sticky top-0 backdrop-blur-md bg-white/20 dark:bg-black/20 z-10 px-4 md:px-6">
@@ -198,8 +173,8 @@ export default function SidebarLayout(props: { projectId: string, children?: Rea
                             </SheetTrigger>
                             <SheetContent
                                 aria-describedby={undefined}
-                                side='left' className="w-[240px] p-0" hasCloseButton={false}>
-                                <SidebarContent projectId={props.projectId} onNavigate={() => setSidebarOpen(false)} />
+                                side='left' className="w-[240px] p-0">
+                                <SidebarContent onNavigate={() => setSidebarOpen(false)} />
                             </SheetContent>
                         </Sheet>
 

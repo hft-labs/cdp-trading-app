@@ -46,28 +46,3 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export const getPrice = async (symbol: string): Promise<number> => {
-    const fromToken = getTokenBySymbol("USDC");
-    if (!fromToken) {
-        return 0;
-    }
-    const toToken = getTokenBySymbol(symbol);
-    if (!toToken) {
-        return 0;
-    }
-    const tenUSDC = parseUnits("10", fromToken.decimals);
-    const swapPrice = await cdp.evm.getSwapPrice({
-        fromToken: fromToken.address as `0x${string}`,
-        toToken: toToken.address as `0x${string}`,
-        fromAmount: tenUSDC,
-        network: "base",
-        taker: "0xA454ECF80b30E82126d90fdEe1f1e339c21d998C" as `0x${string}`
-    });
-    if (swapPrice.liquidityAvailable) {
-        const toAmount = formatUnits(swapPrice.toAmount, toToken.decimals);
-        const fromAmount = formatUnits(swapPrice.fromAmount, fromToken.decimals);
-        const price = parseFloat(fromAmount) / parseFloat(toAmount);
-        return price;
-    }
-    return 0;
-}
