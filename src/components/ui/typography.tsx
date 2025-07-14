@@ -1,6 +1,6 @@
 import { cn } from "../../lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import { forwardRefIfNeeded } from "@stackframe/stack-shared/dist/utils/react";
+import React from "react";
 
 const typographyVariants = cva("stack-scope text-md", {
   variants: {
@@ -28,7 +28,7 @@ const typographyVariants = cva("stack-scope text-md", {
 
 type TypographyProps = {} & React.HTMLAttributes<HTMLHeadingElement> & VariantProps<typeof typographyVariants>
 
-const Typography = forwardRefIfNeeded<HTMLHeadingElement, TypographyProps>(
+const Typography = React.forwardRef<HTMLHeadingElement, TypographyProps>(
   ({ className, type, variant, ...props }, ref) => {
     const Comp = (type === 'footnote' || type === 'label' ? 'p' : type) || 'p';
     return (
