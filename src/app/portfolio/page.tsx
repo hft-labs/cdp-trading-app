@@ -15,9 +15,7 @@ export default async function Home() {
   return (
     <AccountProvider accountAddress={account.smartAccount?.address}>
       <SwapProvider>
-        <ContentContainer>
           <PortfolioPageClient portfolio={defaultPortfolio} />
-        </ContentContainer>
       </SwapProvider>
     </AccountProvider>
   );

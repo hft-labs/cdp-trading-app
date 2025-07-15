@@ -8,8 +8,7 @@ import { SwitchButton } from "./switch-button"
 
 export function SwapWidget() {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <Card className="w-full max-w-lg bg-black border-gray-800 rounded-3xl">
+    <div className="min-h-screen bg-black flex  justify-center p-4">
         <div className="p-6 space-y-4">
           <div className="space-y-1">
             <div className="text-gray-200 text-base md:text-lg font-bold pl-1">Sell</div>
@@ -26,7 +25,6 @@ export function SwapWidget() {
             <SwapButton  />
           </div>
         </div>
-      </Card>
     </div>
   )
 }

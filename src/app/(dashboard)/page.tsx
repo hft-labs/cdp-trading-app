@@ -11,7 +11,14 @@ export default async function Home() {
   return (
     <AccountProvider accountAddress={account.smartAccount?.address}>
       <SwapProvider>
-        <SwapWidget />
+        <div className="flex flex-row w-full h-full px-8  gap-8">
+          <div className="basis-2/3">
+            <div>main content</div>
+          </div>
+          <div className="basis-1/3">
+            <SwapWidget />
+          </div>
+        </div>
       </SwapProvider>
     </AccountProvider>
   );
