@@ -1,36 +1,15 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BYOC: Build Your Own Coinbase
 
-## Getting Started
+## Overview
+This example application demostrates the power and completeness of the Coinbase Developer Platform by showcasing a fully functional DEX-based trading app — built entirely with CDP products. It's designed to prove a bold point: that you can now “Build Your Own Coinbase.”
 
-First, run the development server:
+## Project Vision
+By the end of July, developers should be able to launch a self-custodied, onchain trading app that mirrors many features of Coinbase’s core functionality — but built in the open, on Base, and powered exclusively by:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Embedded Wallets** – for user custody and key management
+- **Onramp** – for fiat-to-crypto funding
+- **Swap API / Contract Calls** – to trade assets
+- **Balances API** – to show token holdings
+- **SQL API** – for analytics and charting
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
