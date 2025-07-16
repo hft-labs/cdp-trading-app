@@ -20,7 +20,6 @@ import {
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Wallet } from './wallet'
 
 type BreadcrumbItem = { item: React.ReactNode, href: string }
 
@@ -209,7 +208,6 @@ export default function SidebarLayout(props: { children?: React.ReactNode }) {
                     </div>
 
                     <div className="flex gap-4">
-                        <Wallet />
                         <UserButton
                             colorModeToggle={() =>
                                 setTheme(resolvedTheme === "light" ? "dark" : "light")
