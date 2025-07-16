@@ -20,11 +20,11 @@ export const TokenMenu = ({
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={true}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="secondary"
-          className="bg-gray-800 hover:bg-gray-700 text-white border-gray-700 rounded-2xl px-4 py-3 h-auto w-32 min-w-32"
+          
         >
           <div className="flex items-center gap-3">
             <span className="font-semibold text-lg">{type === "from" ? fromToken : toToken}</span>
