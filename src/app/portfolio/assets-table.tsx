@@ -121,14 +121,14 @@ interface AssetsTableProps {
 export function AssetsTable({ positions }: AssetsTableProps) {
     console.log('positions', positions);
     return (
-        <div className="rounded-2xl overflow-hidden shadow-xl bg-[#181A20] border border-[#23242A] max-w-4xl mx-auto mt-8">
+        <div className="overflow-hidden shadow-xl bg-[#181A20] w-full">
             <Table className="min-w-full">
-                <TableHeader className="bg-[#23242A]">
-                    <TableRow>
-                        <TableHead className="text-white font-bold text-sm px-6 py-4 border-none">Asset</TableHead>
-                        <TableHead className="text-white font-bold text-sm px-6 py-4 border-none">Balance</TableHead>
-                        <TableHead className="text-white font-bold text-sm px-6 py-4 border-none">Price</TableHead>
-                        <TableHead className="text-white font-bold text-sm px-6 py-4 border-none text-right">Value</TableHead>
+                <TableHeader className="border-none !border-0 bg-black">
+                    <TableRow className="!border-0">
+                        <TableHead className="text-white/60 font-bold text-sm px-6 py-4 border-none">Asset</TableHead>
+                        <TableHead className="text-white/60 font-bold text-sm px-6 py-4 border-none">Balance</TableHead>
+                        <TableHead className="text-white/60 font-bold text-sm px-6 py-4 border-none">Price</TableHead>
+                        <TableHead className="text-white/60 font-bold text-sm px-6 py-4 border-none text-right">Value</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody className="bg-black">
@@ -141,7 +141,7 @@ export function AssetsTable({ positions }: AssetsTableProps) {
                             <TableRow
                                 key={position.symbol}
                                 className={
-                                    `transition-colors border-b border-[#23242A] last:border-0 hover:bg-[#23242A]/60` +
+                                    `!border-0 transition-colors hover:bg-[#23242A]/60` +
                                     (idx === 0 ? "" : "")
                                 }
                             >

@@ -4,7 +4,6 @@ import { AccountProvider } from "@/components/providers/account-provider";
 import { SwapProvider } from "@/components/swap/swap-provider";
 import { getPortfolio } from "./utils"; 
 import PortfolioPageClient from "./page-client";
-import { ContentContainer } from "@/components/content-container";
 
 export default async function Home() {
   const user = await stackServerApp.getUser({
