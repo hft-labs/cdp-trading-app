@@ -3,6 +3,8 @@ import { stackServerApp } from "@/lib/stack/stack.server";
 import { AccountProvider } from "@/components/providers/account-provider";
 import { SwapProvider } from "@/components/swap/swap-provider";
 import { SwapWidget } from "@/components/swap/swap-widget";
+import { Separator } from "@/components/ui/separator";
+import { WalletControls } from "@/components/wallet-controls";
 
 export default async function Home() {
   const user = await stackServerApp.getUser();
@@ -17,6 +19,8 @@ export default async function Home() {
           </div>
           <div className="basis-1/3">
             <SwapWidget />
+            <Separator className="my-4" />
+            <WalletControls />
           </div>
         </div>
       </SwapProvider>

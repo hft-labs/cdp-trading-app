@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/nav-bar";
 import SidebarLayout from "@/components/sidebar-layout";
 
 export default function Page ({ children } : { children?: React.ReactNode }) {

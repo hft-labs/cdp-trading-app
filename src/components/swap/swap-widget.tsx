@@ -7,7 +7,7 @@ import { SwitchButton } from "./switch-button"
 
 export function SwapWidget() {
   return (
-    <div className="min-h-screen bg-black flex  justify-center p-4">
+    <div className="bg-black flex  justify-center p-4">
       <div className="">
         <div className="space-y-1">
           <div className="text-gray-200 text-base md:text-lg font-bold pl-1">Sell</div>
