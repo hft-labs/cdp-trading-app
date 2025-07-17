@@ -5,7 +5,9 @@ import { SwapProvider } from "@/components/swap/swap-provider";
 import { SwapWidget } from "@/components/swap/swap-widget";
 import { AssetsTable } from "./assets-table";
 import { getPortfolio } from "./utils";
-import { SwapInterface } from "./swap-interface";
+import { Separator } from "@/components/ui/separator"
+import { WalletControls } from "@/components/wallet-controls";
+
 
 
 
@@ -29,6 +31,8 @@ export default async function Home({ portfolio }: { portfolio: any[] }) {
                     </div>
                     <div className="basis-1/3">
                         <SwapWidget />
+                        <Separator className="my-4" />
+                        <WalletControls />
                     </div>
                 </div>
             </SwapProvider>

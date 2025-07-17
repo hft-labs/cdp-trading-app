@@ -9,6 +9,11 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
+import { Button } from "@/components/ui/button";
+import { useUser } from "@stackframe/stack";
+import { useAccountContext } from "@/components/providers/account-provider";
+import { useOnramp } from "@/hooks/use-onramp";
+
 /**
  * defaultPortfolio [
   {
@@ -120,6 +125,29 @@ interface AssetsTableProps {
 
 export function AssetsTable({ positions }: AssetsTableProps) {
     console.log('positions', positions);
+    // Determine if the user has any assets with value > 0
+    const isEmpty = !positions || positions.length === 0 || positions.every((p) => !p.value || Number(p.value) === 0);
+    const user = useUser();
+    const { accountAddress } = useAccountContext();
+    const { handleOnramp } = useOnramp({
+        address: accountAddress || "",
+        partnerUserId: user?.id || "",
+    });
+    if (isEmpty) {
+        return (
+            <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] bg-black w-full shadow-xl">
+                <div className="text-2xl font-semibold text-white mb-2">You don’t have any assets yet</div>
+                <div className="text-zinc-400 mb-6">Start by making your first deposit to see your assets here.</div>
+                <Button
+                    onClick={handleOnramp}
+                    variant="ghost"
+                    className="bg-white text-black"
+                    >
+                    Deposit Now
+                </Button>
+            </div>
+        );
+    }
     return (
         <div className="overflow-hidden shadow-xl bg-[#181A20] w-full">
             <Table className="min-w-full">
