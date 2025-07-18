@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CdpClient } from "@coinbase/cdp-sdk";
-import { z } from "zod";
 import { getTokenBySymbol } from "@/lib/tokens";
 import { formatUnits, parseUnits } from "viem";
 
@@ -41,7 +40,6 @@ export async function GET(request: NextRequest) {
         const price = parseFloat(fromAmount) / parseFloat(toAmount);
         return NextResponse.json({ symbol: toToken.symbol, price });
     } else {
-        console.log("Swap is unavailable");
         return NextResponse.json({ error: "Swap is unavailable" }, { status: 400 });
     }
 }

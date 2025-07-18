@@ -14,7 +14,6 @@ export async function GET() {
 	if (!smartAccount) {
 		throw new Error("Smart account not found");
 	}
-
 	const { url, jwt } = await createRequest({
 		request_method: "GET",
 		request_path: `/onramp/v1/sell/user/${user.id}/transactions`,
@@ -25,7 +24,6 @@ export async function GET() {
 			Authorization: `Bearer ${jwt}`,
 		},
 	});
-	
 
 	const data = await response.json();
 	const latestTransaction = data.transactions[0];
