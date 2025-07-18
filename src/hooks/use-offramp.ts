@@ -21,11 +21,30 @@ interface UseOfframpProps {
 export function useOfframp({ address, partnerUserId }: UseOfframpProps) {
 	const assets = ["USDC"];
 	const assetsString = JSON.stringify(assets);
-	const handleOfframp = useCallback(() => {
+	const handleOfframp = async () => {
+		const sessionResponse = await fetch('/api/session', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				addresses: [
+					{
+						address,
+						blockchains: ["base"],
+					}
+				],
+				assets: ["USDC"],
+			}),
+		});
+
+		const sessionData = await sessionResponse.json();
+		const sessionToken = sessionData.token;
 		const callbackUrl = `${redirectUrl}/api/offramp/callback`;
-		const url = `https://pay.coinbase.com/v3/sell/input?appId=${appId}&partnerUserId=${partnerUserId}&addresses={"${address}":["base"]}&assets=${assetsString}&redirectUrl=${encodeURIComponent(callbackUrl)}`;
+		const url = `https://pay.coinbase.com/v3/sell/input?sessionToken=${sessionToken}&partnerUserId=${partnerUserId}&defaultAsset=USDC&defaultNetwork=base&redirectUrl=${encodeURIComponent(callbackUrl)}`;
+		console.log('url', url);
 		window.open(url, "_blank");
-	}, [address, partnerUserId, assetsString]);
+	};
 
 	return { handleOfframp };
 }

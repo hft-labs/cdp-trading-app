@@ -40,11 +40,9 @@ export async function POST(request: NextRequest) {
             const fromAmount = formatUnits(swapPrice.fromAmount, fromToken.decimals);
             return NextResponse.json({ toAmount, fromAmount, fromToken: fromToken.symbol, toToken: toToken.symbol });
         } else {
-            console.log("Swap is unavailable");
             return NextResponse.json({ error: "Swap is unavailable" }, { status: 400 });
         }
     } catch (error) {
-        console.log(error);
         if (error instanceof z.ZodError) {
             return NextResponse.json(
                 {
