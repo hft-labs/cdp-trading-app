@@ -1,7 +1,7 @@
 import { generateJwt } from '@coinbase/cdp-sdk/auth';
 
-const key_name = process.env.NEW_API_KEY_ID as string;
-const key_secret = process.env.NEW_API_SECRET as string;
+const key_name = process.env.CDP_API_KEY_ID as string;
+const key_secret = process.env.CDP_API_KEY_SECRET as string;
 
 if (!key_name || !key_secret) {
     throw new Error("No API key found");
