@@ -8,9 +8,6 @@ import { getPortfolio } from "./utils";
 import { Separator } from "@/components/ui/separator"
 import { WalletControls } from "@/components/wallet-controls";
 
-
-
-
 export default async function Home({ portfolio }: { portfolio: any[] }) {
     const user = await stackServerApp.getUser();
     const account = await getAccount(user?.id);
