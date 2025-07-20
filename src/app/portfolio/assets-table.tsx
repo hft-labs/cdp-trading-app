@@ -52,7 +52,7 @@ export function AssetsTable({ positions }: AssetsTableProps) {
         );
     }
     return (
-        <div className="overflow-hidden shadow-xl bg-[#181A20] w-full">
+        <div className="overflow-hidden shadow-xl bg-black w-full h-full">
             <Table className="min-w-full">
                 <TableHeader className="border-none !border-0 bg-black">
                     <TableRow className="!border-0">

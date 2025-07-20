@@ -26,7 +26,7 @@ export default async function Home({ portfolio }: { portfolio: any[] }) {
                             positions={defaultPortfolio}
                         />
                     </div>
-                    <div className="basis-1/3">
+                    <div className="basis-1/3 border-l border-white/10">
                         <SwapWidget />
                         <Separator className="my-4" />
                         <WalletControls />
