@@ -18,6 +18,10 @@ export async function GET(request: Request) {
         network: "base",
     });
 
+    // Note: CDP EVM API doesn't have transaction history methods
+    // Transaction history is available through CDP's JSON-RPC API
+    // See src/lib/transaction-history.ts for the correct implementation
+
     const tokens = await Promise.all(
         (balancesResponse.balances || []).map(async (balance: any) => {
             const tokenInfo = getTokenByAddress(balance.token?.contractAddress);

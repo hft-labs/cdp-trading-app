@@ -6,10 +6,10 @@ import { useAccountContext } from "../components/providers/account-provider";
 // WHy do we need a taker address for a qoute?
 const defaultTaker = "0xFB122c4a6F14BeB76a590990C049d9952faE7CE1";
 
-export const useQuote = (fromToken: string, toToken: string, amount: string) => {
+export const usePrice = (fromToken: string, toToken: string, amount: string) => {
     const { accountAddress } = useAccountContext();
     const { data, isLoading, error } = useQuery({
-        queryKey: ['quote', fromToken, toToken, amount], queryFn: async () => {
+        queryKey: ['price', fromToken, toToken, amount], queryFn: async () => {
             const parsedAmount = parseUnits(amount, getTokenBySymbol(fromToken)!.decimals).toString()
 
             const body = {
@@ -18,7 +18,7 @@ export const useQuote = (fromToken: string, toToken: string, amount: string) => 
                 fromAmount: parsedAmount,
                 taker: accountAddress || defaultTaker,
             }
-            const response = await fetch(`/api/quote`, {
+            const response = await fetch(`/api/price`, {
                 method: "POST",
                 body: JSON.stringify(body)
             })

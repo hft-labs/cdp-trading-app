@@ -1,7 +1,7 @@
 "use client";
 import { Input } from "@/components/ui/input"
 import { useSwapProvider } from "./swap-provider"
-import { useQuote } from "../../hooks/use-quote"
+import { usePrice } from "../../hooks/use-price"
 import { MaxButton } from "./max-button"
 import { TokenMenu } from "./token-menu"
 import { useBalance } from "@/hooks/use-balance"
@@ -32,7 +32,7 @@ export const TokenSection = ({
         }
     }
 
-    const { quote, loading } = useQuote(fromToken, toToken, fromAmount);
+    const { quote, loading } = usePrice(fromToken, toToken, fromAmount);
 
     const currentToken = type === "from" ? fromToken : toToken;
     const { availableBalance, isLoading, error } = useBalance(currentToken);
@@ -41,7 +41,7 @@ export const TokenSection = ({
     if (type === "from") {
         amount = fromAmount;
     } else {
-        amount = loading ? "" : quote?.toAmount ?? "";
+          amount = loading ? "" : quote?.toAmount ?? "";
     }
 
     return (

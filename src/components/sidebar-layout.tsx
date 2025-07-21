@@ -16,6 +16,7 @@ import {
     Menu,
     Home as HomeIcon,
     PieChart,
+    Receipt,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
@@ -59,25 +60,13 @@ const navigationItems: (Label | Item | Hidden)[] = [
         icon: PieChart,
         type: 'item'
     },
-   
-    {
-        name: (pathname: string) => {
-            const match = pathname.match(/^\/projects\/[^\/]+\/webhooks\/([^\/]+)$/);
-            let href;
-            if (match) {
-                href = `/teams/${match[1]}`;
-            } else {
-                href = "";
-            }
-
-            return [
-                { item: "Webhooks", href: "/webhooks" },
-                { item: "Endpoint", href },
-            ];
-        },
-        regex: /^\/projects\/[^\/]+\/webhooks\/[^\/]+$/,
-        type: 'hidden',
-    }
+   {
+    name: "Transactions",
+    href: "/transactions",
+    regex: /^\/transactions\/?$/,
+    icon: Receipt,
+    type: 'item'
+   }
 ];
 
 function NavItem({ item, href, onClick, alwaysWhite }: { item: Item, href: string, onClick?: () => void, alwaysWhite?: boolean }) {

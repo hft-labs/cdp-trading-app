@@ -49,6 +49,18 @@ export async function POST(request: Request) {
         fromAmount: fromAmountBigInt,
         slippageBps: 100,
     });
+    // const quote = await smartAccount.quoteSwap({
+    //     network: "base",
+    //     toToken: toTokenObj.address as Address,
+    //     fromToken: fromTokenObj.address as Address,
+    //     fromAmount: fromAmountBigInt,
+    //     slippageBps: 100,
+    // });
+
+    // if(!quote.liquidityAvailable) {
+    //     return NextResponse.json({ error: "Insufficient liquidity" }, { status: 400 });
+    // }
+
 
 
     const receipt = await publicClient.waitForTransactionReceipt({
