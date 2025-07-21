@@ -1,3 +1,5 @@
+"use client";
+
 import { getAccount } from "@/lib/account";
 import { stackServerApp } from "@/lib/stack/stack.server";
 import { AccountProvider } from "@/components/providers/account-provider";
