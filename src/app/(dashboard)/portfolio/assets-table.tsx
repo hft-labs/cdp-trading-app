@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button";
-import { useUser } from "@stackframe/stack";
-import { useAccountContext } from "@/components/providers/account-provider";
 import { useOnramp } from "@/hooks/use-onramp";
+import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 
 type Position = {
     name: string
@@ -30,11 +29,11 @@ interface AssetsTableProps {
 
 export function AssetsTable({ positions }: AssetsTableProps) {
     const isEmpty = !positions || positions.length === 0 || positions.every((p) => !p.value || Number(p.value) === 0);
-    const user = useUser();
-    const { accountAddress } = useAccountContext();
+    const address = useEvmAddress();
+    const user = useCurrentUser();
     const { handleOnramp } = useOnramp({
-        address: accountAddress || "",
-        partnerUserId: user?.id || "",
+        address: address as string,
+        partnerUserId: user?.userId as string,
     });
     if (isEmpty) {
         return (

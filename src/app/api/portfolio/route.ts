@@ -44,6 +44,8 @@ export async function GET(request: Request) {
             };
         })
     );
+
+
     const filteredTokens = tokens.filter(Boolean);
     return NextResponse.json({ positions: filteredTokens });
 }

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAccountContext } from "@/components/providers/account-provider";
 import { Typography } from "@/components/ui/typography";
 import { TrendingUp, TrendingDown, DollarSign, Activity, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEvmAddress } from "@coinbase/cdp-hooks";
 
 interface PortfolioData {
   totalValue: number;
@@ -20,15 +20,10 @@ interface PortfolioData {
   }>;
 }
 
-interface DashboardOverviewProps {
-  accountAddress?: string;
-}
-
-export function DashboardOverview({ accountAddress }: DashboardOverviewProps) {
+export function DashboardOverview() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
   const [loading, setLoading] = useState(true);
-  const { accountAddress: contextAddress } = useAccountContext();
-  const address = accountAddress || contextAddress;
+  const address = useEvmAddress();
 
   useEffect(() => {
     const fetchPortfolioData = async () => {

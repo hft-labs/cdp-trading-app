@@ -7,6 +7,7 @@ export type Token = {
   decimals: number;
   image: string;
   chainId: number;
+  isNativeAsset: boolean;
 };
 
 export const ethSepoliaToken: Token = {
@@ -17,6 +18,7 @@ export const ethSepoliaToken: Token = {
   image:
     'https://wallet-api-production.s3.amazonaws.com/uploads/tokens/eth_288.png',
   chainId: baseSepolia.id,
+  isNativeAsset: true
 };
 
 export const usdcToken: Token = {
@@ -27,6 +29,7 @@ export const usdcToken: Token = {
   image:
     'https://d3r81g40ycuhqg.cloudfront.net/wallet/wais/44/2b/442b80bd16af0c0d9b22e03a16753823fe826e5bfd457292b55fa0ba8c1ba213-ZWUzYjJmZGUtMDYxNy00NDcyLTg0NjQtMWI4OGEwYjBiODE2',
   chainId: base.id,
+  isNativeAsset: false
 };
 
 export const usdcSepoliaToken: Token = {
@@ -37,6 +40,7 @@ export const usdcSepoliaToken: Token = {
   image:
     'https://d3r81g40ycuhqg.cloudfront.net/wallet/wais/44/2b/442b80bd16af0c0d9b22e03a16753823fe826e5bfd457292b55fa0ba8c1ba213-ZWUzYjJmZGUtMDYxNy00NDcyLTg0NjQtMWI4OGEwYjBiODE2',
   chainId: baseSepolia.id,
+  isNativeAsset: false
 };
 
 export const degenToken: Token = {
@@ -47,6 +51,7 @@ export const degenToken: Token = {
   image:
     'https://d3r81g40ycuhqg.cloudfront.net/wallet/wais/3b/bf/3bbf118b5e6dc2f9e7fc607a6e7526647b4ba8f0bea87125f971446d57b296d2-MDNmNjY0MmEtNGFiZi00N2I0LWIwMTItMDUyMzg2ZDZhMWNm',
   chainId: base.id,
+  isNativeAsset: false
 };
 
 export const daiToken: Token = {
@@ -57,6 +62,7 @@ export const daiToken: Token = {
   image:
     'https://d3r81g40ycuhqg.cloudfront.net/wallet/wais/92/13/9213e31b84c98a693f4c624580fdbe6e4c1cb550efbba15aa9ea68fd25ffb90c-ZTE1NmNjMGUtZGVkYi00ZDliLWI2N2QtNTY2ZWRjMmYwZmMw',
   chainId: base.id,
+  isNativeAsset: false
 };
 
 const wethToken: Token = {
@@ -67,6 +73,7 @@ const wethToken: Token = {
   image:
     'https://d3r81g40ycuhqg.cloudfront.net/wallet/wais/47/bc/47bc3593c2dec7c846b66b7ba5f6fa6bd69ec34f8ebb931f2a43072e5aaac7a8-YmUwNmRjZDUtMjczYy00NDFiLWJhZDUtMzgwNjFmYWM0Njkx',
   chainId: base.id,
+  isNativeAsset: false
 };
 
 const lbtcToken: Token = {
@@ -77,6 +84,7 @@ const lbtcToken: Token = {
   image:
     'https://d3r81g40ycuhqg.cloudfront.net/wallet/wais/a3/40/a340085995bc54eddbcb66bab87833a7089edd1513847c39fc1799cab9207db4-Zjk2YzQ2MmQtMTY2OS00YWQyLWFkMGQtMjQ3OGYzNzljMWY2',
   chainId: base.id,
+  isNativeAsset: false
 };
 
 const cbbtcToken: Token = {
@@ -86,6 +94,7 @@ const cbbtcToken: Token = {
   decimals: 8,
   image: 'https://go.wallet.coinbase.com/static/CBBTCMedium.png',
   chainId: base.id,
+  isNativeAsset: false
 };
 
 const eUsdToken: Token = {
@@ -96,6 +105,7 @@ const eUsdToken: Token = {
   image:
     'https://d3r81g40ycuhqg.cloudfront.net/wallet/wais/bf/a4/bfa445583916854508ae5d88f9cca19cd5a0910d8c4d7cd9385eb40a597017d7-MDFhM2E0YmQtZGU3NS00Yzk3LWFlMzAtMzA1Y2UyYzU2ZGEy',
   chainId: base.id,
+  isNativeAsset: false
 };
 const eurcToken: Token = {
   name: 'EURC',
@@ -105,6 +115,7 @@ const eurcToken: Token = {
   image:
     'https://d3r81g40ycuhqg.cloudfront.net/wallet/wais/54/f4/54f4216472dd25b1ffb5caf32cc0d81f645c84be166cd713f759a80f05a1418f-M2YxNTczYTItNjk3YS00N2FiLThkZjktYzBiYzExZTk1ZTFj',
   chainId: base.id,
+  isNativeAsset: false
 };
 
 const baseTokens = [

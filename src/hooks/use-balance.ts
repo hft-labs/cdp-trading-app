@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAccountContext } from "@/components/providers/account-provider";
+import { useEvmAddress } from "@coinbase/cdp-hooks";
 
 const twoSeconds = 2000;
 
 export const useBalance = (symbol: string) => {
-    const { accountAddress } = useAccountContext();
+    const accountAddress = useEvmAddress();
     const { data, isLoading, error } = useQuery({
         queryKey: ['balance', symbol],
         queryFn: () => fetch(`/api/balance?symbol=${symbol}&address=${accountAddress}`).then(res => res.json()),

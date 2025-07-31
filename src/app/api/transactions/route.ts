@@ -8,13 +8,8 @@ export async function GET(request: NextRequest) {
   const network = searchParams.get("network") || "base";
   const limit = parseInt(searchParams.get("limit") || "50");
   const offset = parseInt(searchParams.get("offset") || "0");
-  const user = await stackServerApp.getUser({ or: "redirect" });
 
-  const { smartAccount } = await getAccount(user.id);
-  const address = smartAccount?.address;
-  if (!smartAccount) {
-      throw new Error("Smart account not found");
-  }
+  const address = searchParams.get("address");
   if (!address) {
     return NextResponse.json({ error: "Address is required" }, { status: 400 });
   }

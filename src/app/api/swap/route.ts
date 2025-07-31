@@ -5,73 +5,155 @@ import { NextResponse } from "next/server";
 import { Address, parseUnits } from "viem";
 import { handleTokenAllowance } from "./utils";
 import { publicClient } from "./utils";
+import { cdp } from "@/lib/cdp-client";
+
+const NETWORK = "base" as const;
+
+function serializeSwapResult(obj: any): any {
+  if (typeof obj === "bigint") {
+    return obj.toString();
+  }
+  if (typeof obj === "function") {
+    return undefined;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(serializeSwapResult);
+  }
+  if (obj && typeof obj === "object") {
+    const result: any = {};
+    for (const key in obj) {
+      if (key === "execute") continue; // skip functions
+      const value = serializeSwapResult(obj[key]);
+      if (value !== undefined) result[key] = value;
+    }
+    return result;
+  }
+  return obj;
+}
 
 export async function POST(request: Request) {
 
-    const user = await stackServerApp.getUser();
-    if (user === null) {
-        return NextResponse.json({ error: "User not found" }, { status: 401 });
-    }
-
-    const { fromToken, toToken, fromAmount } = await request.json();
+    const { fromToken, toToken, fromAmount, address } = await request.json();
+    console.log('fromToken', address);
 
     if (!fromToken || !toToken || !fromAmount) {
         return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
-
-    const { smartAccount } = await getAccount(user.id);
-    if (!smartAccount) {
-        return NextResponse.json({ error: "Smart account not found" }, { status: 400 });
-    }
-
     const fromTokenObj = getTokenBySymbol(fromToken);
     const toTokenObj = getTokenBySymbol(toToken);
-
-    if (!fromTokenObj || !toTokenObj) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 400 });
+    // Create the swap quote using CDP API
+    const swapQuoteRequest = {
+        network: NETWORK,
+        toToken: toTokenObj?.address as Address,
+        fromToken: fromTokenObj?.address as Address,
+        fromAmount,
+        taker: address,
+        signerAddress: address, // Owner will sign permit2 messages
+        slippageBps: 100, // 1% slippage tolerance
+    };
+    const swapResult = await cdp.evm.createSwapQuote(swapQuoteRequest);
+    /**
+     * {
+  liquidityAvailable: true,
+  network: 'base',
+  toToken: '0x4200000000000000000000000000000000000006',
+  fromToken: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+  fromAmount: 1n,
+  toAmount: 274207900n,
+  minToAmount: 271472728n,
+  blockNumber: 33314434n,
+  fees: {
+    gasFee: undefined,
+    protocolFee: {
+      amount: 2348401n,
+      token: '0x4200000000000000000000000000000000000006'
     }
-
-    const fromAmountBigInt = parseUnits(fromAmount, fromTokenObj.decimals);
-
-    if (!fromToken.isNativeAsset) {
-        await handleTokenAllowance(
-            smartAccount,
-            fromTokenObj.address as Address,
-            fromTokenObj.symbol,
-            fromAmountBigInt
-        );
+  },
+  issues: {
+    allowance: {
+      currentAllowance: 0n,
+      spender: '0x000000000022d473030f116ddee9f6b43ac78ba3'
+    },
+    balance: undefined,
+    simulationIncomplete: false
+  },
+  transaction: {
+    to: '0xf525ff21c370beb8d9f5c12dc0da2b583f4b949f',
+    data: '0x1fff991f000000000000000000000000a0f307ac2dc9ddcfea03fb2b8945d21a4a81c9c5000000000000000000000000420000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000102e585800000000000000000000000000000000000000000000000000000000000000a0a488b9864215dd34530659ef0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000008e000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000006e00000000000000000000000000000000000000000000000000000000000000780000000000000000000000000000000000000000000000000000000000000012438c9c147000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000000000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000000000000000000000000000000000000000002400000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000044a9059cbb000000000000000000000000ad01c20d5886137e056775af56915de824c8fce50000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004a438c9c147000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913000000000000000000000000000000000000000000000000000000000000271000000000000000000000000003c01acae3d0173a93d819efdc832c7c4f153b06000000000000000000000000000000000000000000000000000000000000016400000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000003c452bbbe2900000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000f525ff21c370beb8d9f5c12dc0da2b583f4b949f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f525ff21c370beb8d9f5c12dc0da2b583f4b949f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000068830a42def66c6c178087fd931514e99b04479e4d3d956c0002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000004200000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000063ab76f17c98d0000000000000000000000000000000000000000000000000000000068830a4200000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000a0f307ac2dc9ddcfea03fb2b8945d21a4a81c9c500000000000000000000000000000000000000000000000000005af3107a400000000000000000c4366de16ea415fa1d0000000000000000000000eb28b0f4000000000000002e3ee1b73e9db45320000000000000000004a980001b93d2dcea0000000000000000000000000000000000000000000250f1b9a402605910000000000000000000004563918244f400000000000000000000006a94d74f430000000000000000000000000000688309e80000000000000000000073f5e835780000000000000000000000000000000000000000000000000000000000000000416191930c01c5828777c200bcde60e45668d362e3a41cfe9de76b86d0810cb88572a0a573c127b0d52e0183ab2b7e3b792e0f0c402b84c1b0f6b15d36483a05d71b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064c876d21d000000000000000000000000f5c4f3dc02c3fb9279495a8fef7b0741da95615700000000000000000000000042000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000002eb697fb3800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012438c9c1470000000000000000000000004200000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000004b0000000000000000000000004200000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000002400000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000044a9059cbb000000000000000000000000e09d9504323f74c78b9a8532c3f321e212e0a53900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffc1fb425e000000000000000000000000f525ff21c370beb8d9f5c12dc0da2b583f4b949f000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda0291300000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000006e898131631616b1779bad70bc5f0000000000000000000000000000000000000000000000000000000068830b1400000000000000000000000000000000000000000000000000000000000000c0',
+    value: 0n,
+    gas: 419668n,
+    gasPrice: 7652711n
+  },
+  permit2: {
+    eip712: {
+      domain: [Object],
+      types: [Object],
+      primaryType: 'PermitTransferFrom',
+      message: [Object]
     }
+  },
+  execute: [AsyncFunction: execute]
+}
+     */
+    const serializedSwapResult = serializeSwapResult(swapResult);
+    console.log('serializedSwapResult', serializedSwapResult);
+    return NextResponse.json(serializedSwapResult);
 
-    const result = await smartAccount.swap({
-        network: "base",
-        toToken: toTokenObj.address as Address,
-        fromToken: fromTokenObj.address as Address,
-        fromAmount: fromAmountBigInt,
-        slippageBps: 100,
-    });
-    // const quote = await smartAccount.quoteSwap({
+    // // Check if swap is available
+    // if (!swapResult.liquidityAvailable) {
+    //     console.log("\n❌ Swap failed: Insufficient liquidity for this swap pair or amount.");
+    //     console.log("Try reducing the swap amount or using a different token pair.");
+    //     return;
+    // }
+
+
+
+
+    // if (!fromTokenObj || !toTokenObj) {
+    //     return NextResponse.json({ error: "Invalid token" }, { status: 400 });
+    // }
+
+    // const fromAmountBigInt = parseUnits(fromAmount, fromTokenObj.decimals);
+
+    // if (!fromToken.isNativeAsset) {
+    //     await handleTokenAllowance(
+    //         smartAccount,
+    //         fromTokenObj.address as Address,
+    //         fromTokenObj.symbol,
+    //         fromAmountBigInt
+    //     );
+    // }
+
+    // const result = await smartAccount.swap({
     //     network: "base",
     //     toToken: toTokenObj.address as Address,
     //     fromToken: fromTokenObj.address as Address,
     //     fromAmount: fromAmountBigInt,
     //     slippageBps: 100,
     // });
+    // // const quote = await smartAccount.quoteSwap({
+    // //     network: "base",
+    // //     toToken: toTokenObj.address as Address,
+    // //     fromToken: fromTokenObj.address as Address,
+    // //     fromAmount: fromAmountBigInt,
+    // //     slippageBps: 100,
+    // // });
 
-    // if(!quote.liquidityAvailable) {
-    //     return NextResponse.json({ error: "Insufficient liquidity" }, { status: 400 });
+    // // if(!quote.liquidityAvailable) {
+    // //     return NextResponse.json({ error: "Insufficient liquidity" }, { status: 400 });
+    // // }
+
+
+
+    // const receipt = await publicClient.waitForTransactionReceipt({
+    //     hash: result.userOpHash,
+    // });
+    // const response = {
+    //     hash: result.userOpHash,
+    //     blockNumber: receipt.blockNumber.toString(),
+    //     gasUsed: receipt.gasUsed.toString(),
+    //     status: receipt.status === 'success' ? 'Success ✅' : 'Failed ❌',
+    //     transactionExplorer: `https://basescan.org/tx/${result.userOpHash}`
     // }
-
-
-
-    const receipt = await publicClient.waitForTransactionReceipt({
-        hash: result.userOpHash,
-    });
-    const response = {
-        hash: result.userOpHash,
-        blockNumber: receipt.blockNumber.toString(),
-        gasUsed: receipt.gasUsed.toString(),
-        status: receipt.status === 'success' ? 'Success ✅' : 'Failed ❌',
-        transactionExplorer: `https://basescan.org/tx/${result.userOpHash}`
-    }
-    return NextResponse.json(response);
+    // return NextResponse.json(response);
 }

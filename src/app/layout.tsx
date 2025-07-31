@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { RootProviders } from "@/components/providers/root-provider";
-
 import "./globals.css";
-import { AccountProvider } from "@/components/providers/account-provider";
 import { getAccount } from "@/lib/account";
-import { stackServerApp } from "@/lib/stack/stack.server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,19 +23,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await stackServerApp.getUser();
-  const account = await getAccount(user?.id);
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <RootProviders>
-          <AccountProvider accountAddress={account.smartAccount?.address}>
-            {children}
-          </AccountProvider>
-        </RootProviders>
+        {children}
       </body>
     </html>
   );

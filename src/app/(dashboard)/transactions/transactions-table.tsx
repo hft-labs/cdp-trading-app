@@ -10,12 +10,11 @@ import {
 } from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button";
-import { useUser } from "@stackframe/stack";
-import { useAccountContext } from "@/components/providers/account-provider";
 import { useOnramp } from "@/hooks/use-onramp";
 import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowUpRight, ArrowDownLeft, ArrowRightLeft, ExternalLink, Loader2 } from "lucide-react";
+import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 
 interface Transaction {
     hash: string;
@@ -31,18 +30,19 @@ interface Transaction {
     network: string;
 }
 
-interface TransactionsTableProps {
-}
-
 export function TransactionsTable() {
+    const user = useCurrentUser();
+    if (!user) {
+        return null;
+    }
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const user = useUser();
-    const { accountAddress } = useAccountContext();
+    const accountAddress = useEvmAddress();
+   
     const { handleOnramp } = useOnramp({
         address: accountAddress || "",
-        partnerUserId: user?.id || "",
+        partnerUserId: user?.userId || "",
     });
 
     useEffect(() => {
@@ -53,8 +53,9 @@ export function TransactionsTable() {
                 setLoading(true);
                 setError(null);
                 
-                // Use the real CDP transaction history API
+            console.log("accountAddress", accountAddress);
                 const response = await fetch(`/api/transactions?address=${accountAddress}&network=base&limit=50`);
+                console.log("response", response);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

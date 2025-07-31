@@ -2,25 +2,20 @@
 import React from "react";
 import { ArrowUpIcon, ArrowDownIcon, WalletIcon } from "lucide-react";
 import { useOfframp } from "@/hooks/use-offramp";
-import { useUser } from "@stackframe/stack";
-import { useAccountContext } from "./providers/account-provider";
 import { useOnramp } from "@/hooks/use-onramp";
+import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 
 export const WalletControls = () => {
-	const user = useUser({
-		or: 'redirect'
-	});
-	const { accountAddress } = useAccountContext();
-	if (!accountAddress) {
-		throw new Error("Account address not found");
-	}
+	const address = useEvmAddress();
+	const user = useCurrentUser();
+	
 	const { handleOnramp } = useOnramp({
-		address: accountAddress as string,
-		partnerUserId: user?.id as string,
+		address: address as string,
+		partnerUserId: user?.userId as string,
 	});
 	const { handleOfframp } = useOfframp({
-		address: accountAddress as string,
-		partnerUserId: user?.id as string,
+		address: address as string,
+		partnerUserId: user?.userId as string,
 	});
 
 	const handleSend = () => { };

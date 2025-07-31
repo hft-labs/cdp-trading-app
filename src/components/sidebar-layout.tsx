@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { UserButton } from "@stackframe/stack";
 import {
     Sheet,
     SheetContent,
@@ -22,6 +21,7 @@ import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Logo } from "./logo";
+import { AuthButton } from "@coinbase/cdp-react/components/AuthButton";
 
 type BreadcrumbItem = { item: React.ReactNode, href: string }
 
@@ -195,11 +195,7 @@ export default function SidebarLayout(props: { children?: React.ReactNode }) {
                     </div>
 
                     <div className="flex gap-4">
-                        <UserButton
-                            colorModeToggle={() =>
-                                setTheme(resolvedTheme === "light" ? "dark" : "light")
-                            }
-                        />
+                        <AuthButton />
                     </div>
                 </div>
                 <div className="flex-grow relative">

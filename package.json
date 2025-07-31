@@ -11,6 +11,9 @@
     "migrate:apply": "bun run src/db/migrate.ts"
   },
   "dependencies": {
+    "@coinbase/cdp-core": "^0.0.16",
+    "@coinbase/cdp-hooks": "^0.0.16",
+    "@coinbase/cdp-react": "^0.0.16",
     "@coinbase/cdp-sdk": "^1.22.0",
     "@neondatabase/serverless": "^1.0.1",
     "@radix-ui/react-dialog": "^1.1.14",
