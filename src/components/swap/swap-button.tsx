@@ -105,7 +105,7 @@ export function SwapButton() {
         console.log("Permit2 signature obtained");
         
         // Calculate the signature length as a 32-byte hex value
-        const signatureLengthInHex = numberToHex(size(signature), {
+        const signatureLengthInHex = numberToHex(size(signature.signature), {
           signed: false,
           size: 32,
         });
