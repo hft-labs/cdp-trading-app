@@ -46,6 +46,20 @@ export async function handleTokenAllowance(
         console.log(`Current allowance: ${currentAllowance.toString()}`);
         console.log(`Required amount: ${requiredAmount.toString()}`);
 
+        // Check token balance
+        const tokenBalance = await publicClient.readContract({
+            address: tokenAddress,
+            abi: erc20Abi,
+            functionName: 'balanceOf',
+            args: [userAddress],
+        });
+
+        console.log(`${tokenSymbol} balance: ${tokenBalance.toString()}`);
+
+        if (tokenBalance < requiredAmount) {
+            throw new Error(`Insufficient ${tokenSymbol} balance. You have ${tokenBalance.toString()} ${tokenSymbol}, but need ${requiredAmount.toString()} ${tokenSymbol}.`);
+        }
+
         // If allowance is sufficient, no need to approve
         if (currentAllowance >= requiredAmount) {
             console.log(`✅ Sufficient ${tokenSymbol} allowance already exists`);
@@ -53,6 +67,28 @@ export async function handleTokenAllowance(
         }
 
         console.log(`❌ Insufficient ${tokenSymbol} allowance. Requesting approval...`);
+
+        // Check ETH balance for gas fees
+        const ethBalance = await publicClient.getBalance({ address: userAddress });
+        console.log(`ETH balance for gas: ${ethBalance.toString()} wei`);
+
+        // Get current gas price from the network
+        const gasPrice = await publicClient.getGasPrice();
+        console.log(`Current gas price: ${gasPrice.toString()} wei`);
+
+        // Estimate gas for approval transaction (conservative)
+        const estimatedGas = BigInt(25000); // Conservative approval gas
+        const estimatedGasCost = estimatedGas * gasPrice;
+
+        console.log(`Estimated gas cost: ${estimatedGasCost.toString()} wei (${Number(estimatedGasCost) / 1e18} ETH)`);
+
+        if (ethBalance < estimatedGasCost) {
+            throw new Error(`Insufficient ETH for gas fees. Need approximately ${estimatedGasCost.toString()} wei (${Number(estimatedGasCost) / 1e18} ETH), but have ${ethBalance.toString()} wei (${Number(ethBalance) / 1e18} ETH). Please add some ETH to your wallet.`);
+        }
+
+        // Set gas prices for the transaction
+        const maxFeePerGas = gasPrice;
+        const maxPriorityFeePerGas = gasPrice / BigInt(10); // 10% of base fee
 
         // Request approval for maximum amount to avoid future approvals
         const maxApproval = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -69,8 +105,8 @@ export async function handleTokenAllowance(
                 value: BigInt(0),
                 chainId: 8453,
                 type: "eip1559",
-                maxFeePerGas: BigInt("10000000000"),
-                maxPriorityFeePerGas: BigInt("1000000000"),
+                maxFeePerGas,
+                maxPriorityFeePerGas,
             },
             network: "base",
         });

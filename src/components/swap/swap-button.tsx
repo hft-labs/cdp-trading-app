@@ -69,6 +69,21 @@ export function SwapButton() {
 
       console.log('Converted fromAmount:', fromAmount, '->', amountInSmallestUnits, 'with decimals', decimals);
 
+
+      if (!fromTokenObj.isNativeAsset) {
+        const requiredAmount = parseUnits(fromAmount, decimals);
+        // The spender should be the Permit2 contract address, not the user address
+        const permit2Spender = "0x000000000022d473030f116ddee9f6b43ac78ba3" as Address;
+        await handleTokenAllowance(
+          accountAddress,
+          fromTokenObj.address as Address,
+          fromTokenObj.symbol,
+          requiredAmount,
+          permit2Spender,
+          sendTransaction
+        );
+      }
+
       // Fetch the quote from the server
       const response = await fetch("/api/swap", {
         method: "POST",
@@ -123,6 +138,9 @@ export function SwapButton() {
       // Prepare and send the swap transaction
       const maxFeePerGas = swapData.transaction.gasPrice ? BigInt(swapData.transaction.gasPrice) : BigInt("10000000000");
       const maxPriorityFeePerGas = maxFeePerGas < BigInt("1000000000") ? maxFeePerGas : BigInt("1000000000");
+      console.log('maxFeePerGas', maxFeePerGas);
+      console.log('maxPriorityFeePerGas', maxPriorityFeePerGas);
+      
 
       const tx = {
         to: swapData.transaction.to,
