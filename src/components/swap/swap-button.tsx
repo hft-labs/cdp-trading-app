@@ -93,31 +93,37 @@ export function SwapButton() {
       let txData = swapData.transaction.data;
       if (swapData.permit2?.eip712) {
         console.log("Signing Permit2 message...");
-        
+
         // Sign the Permit2 typed data message
         const signature = await signTypedData({
-          domain: swapData.permit2.eip712.domain,
-          types: swapData.permit2.eip712.types,
-          primaryType: swapData.permit2.eip712.primaryType,
-          message: swapData.permit2.eip712.message,
+          evmAccount: accountAddress,
+          typedData: {
+            domain: swapData.permit2.eip712.domain,
+            types: swapData.permit2.eip712.types,
+            primaryType: swapData.permit2.eip712.primaryType,
+            message: swapData.permit2.eip712.message,
+          }
         });
-        
+
         console.log("Permit2 signature obtained");
-        
+
+        // Extract the signature hex string from the signature object
+        const signatureHex = signature.signature;
+
         // Calculate the signature length as a 32-byte hex value
-        const signatureLengthInHex = numberToHex(size(signature.signature), {
+        const signatureLengthInHex = numberToHex(size(signatureHex), {
           signed: false,
           size: 32,
         });
-        
+
         // Append the signature length and signature to the transaction data
-        txData = concat([txData, signatureLengthInHex, signature]);
+        txData = concat([txData, signatureLengthInHex, signatureHex]);
       }
 
       // Prepare and send the swap transaction
       const maxFeePerGas = swapData.transaction.gasPrice ? BigInt(swapData.transaction.gasPrice) : BigInt("10000000000");
       const maxPriorityFeePerGas = maxFeePerGas < BigInt("1000000000") ? maxFeePerGas : BigInt("1000000000");
-      
+
       const tx = {
         to: swapData.transaction.to,
         value: BigInt(swapData.transaction.value || "0"),
@@ -130,7 +136,7 @@ export function SwapButton() {
       };
 
       console.log('🚀 Executing swap transaction...');
-      
+
       const txResult = await sendTransaction({
         evmAccount: accountAddress,
         transaction: tx,
@@ -139,7 +145,7 @@ export function SwapButton() {
 
       console.log('✅ Swap transaction sent:', txResult);
       setStatus('success');
-      
+
       setTimeout(() => {
         setStatus('idle');
       }, 3000);
@@ -202,23 +208,22 @@ export function SwapButton() {
         onClick={handleSwap}
         disabled={isDisabled}
         variant={getButtonVariant()}
-        className={`w-full font-semibold py-4 rounded-2xl text-lg ${
-          status === 'success' 
-            ? 'bg-green-600 hover:bg-green-700 text-white' 
+        className={`w-full font-semibold py-4 rounded-2xl text-lg ${status === 'success'
+            ? 'bg-green-600 hover:bg-green-700 text-white'
             : status === 'error'
-            ? 'bg-red-600 hover:bg-red-700 text-white'
-            : 'bg-blue-600 hover:bg-blue-700 text-white'
-        }`}
+              ? 'bg-red-600 hover:bg-red-700 text-white'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
       >
         {getButtonContent()}
       </Button>
-      
+
       {status === 'error' && errorMessage && (
         <div className="text-red-500 text-sm text-center bg-red-500/10 p-2 rounded-lg">
           {errorMessage}
         </div>
       )}
-      
+
       {status === 'success' && (
         <div className="text-green-500 text-sm text-center bg-green-500/10 p-2 rounded-lg">
           Your swap has been submitted successfully!
