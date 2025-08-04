@@ -1,14 +1,10 @@
-import { getAccount } from "@/lib/account";
-import { stackServerApp } from "@/lib/stack/stack.server";
 import { getTokenBySymbol } from "@/lib/tokens";
 import { NextResponse } from "next/server";
-import { Address, parseUnits } from "viem";
-import { handleTokenAllowance } from "./utils";
-import { publicClient } from "./utils";
+import { Address } from "viem";
 import { cdp } from "@/lib/cdp-client";
 
 const NETWORK = "base" as const;
-
+  
 function serializeSwapResult(obj: any): any {
   if (typeof obj === "bigint") {
     return obj.toString();

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useSwapProvider } from "./swap-provider";
-import { useAccountContext } from "@/components/providers/account-provider";
 import { Typography } from "@/components/ui/typography";
 import { Loader2, ArrowDown, Info } from "lucide-react";
 import { getTokenBySymbol } from "@/lib/tokens";
+import { useEvmAddress } from "@coinbase/cdp-hooks";
 
 interface PriceData {
   fromAmount: string;
@@ -17,14 +17,14 @@ interface PriceData {
 
 export function PriceDisplay() {
   const { fromAmount, fromToken, toToken, toAmount, setToAmount } = useSwapProvider();
-  const { accountAddress } = useAccountContext();
+  const address = useEvmAddress();
   const [priceData, setPriceData] = useState<PriceData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchQuote = async () => {
-      if (!fromAmount || !fromToken || !toToken || !accountAddress || parseFloat(fromAmount) <= 0) {
+      if (!fromAmount || !fromToken || !toToken || !address || parseFloat(fromAmount) <= 0) {
         setPriceData(null);
         setError(null);
         return;
@@ -49,7 +49,7 @@ export function PriceDisplay() {
             fromToken,
             toToken,
             fromAmount: parseUnits(fromAmount, getTokenBySymbol(fromToken)?.decimals || 18).toString(),
-            taker: accountAddress,
+            taker: address,
           }),
         });
 
@@ -86,7 +86,7 @@ export function PriceDisplay() {
     // Debounce the quote request
     const timeoutId = setTimeout(fetchQuote, 500);
     return () => clearTimeout(timeoutId);
-  }, [fromAmount, fromToken, toToken, accountAddress, setToAmount]);
+  }, [fromAmount, fromToken, toToken, address, setToAmount]);
 
   if (!fromAmount || parseFloat(fromAmount) <= 0) {
     return null;

@@ -1,32 +1,10 @@
-
-import { getAccount } from "@/lib/account";
-import { SwapProvider } from "@/components/swap/swap-provider";
-import { getPortfolio } from "./utils";
-import { AssetsTable } from "./assets-table";
-import { WalletControls } from "@/components/wallet-controls";
-import { useEvmAddress } from "@coinbase/cdp-hooks";
+import SidebarLayout from "@/components/sidebar-layout";
+import { PageClient } from "./page-client";
 
 export default async function Home() {
-    const address = useEvmAddress();
-    const defaultPortfolio = await getPortfolio(address as `0x${string}`);
-    const totalValue = defaultPortfolio.reduce((acc: number, position: { value: number }) => acc + position.value, 0);
     return (
-        <SwapProvider>
-            <div className="flex flex-row w-full h-full ">
-                <div className="basis-2/3">
-                    <div className="bg-black rounded-tl-xl px-8 pt-6 pb-4">
-                        <span className="text-5xl font-semibold text-white block">${totalValue.toFixed(2)}</span>
-                    </div>
-                    <AssetsTable
-                        positions={defaultPortfolio}
-                    />
-                </div>
-                <div className="basis-1/3 border-l border-white/10">
-                    {/* <SwapWidget />
-                        <Separator className="my-4" /> */}
-                    <WalletControls />
-                </div>
-            </div>
-        </SwapProvider>
+        <SidebarLayout>
+            <PageClient />
+        </SidebarLayout>
     );
 }

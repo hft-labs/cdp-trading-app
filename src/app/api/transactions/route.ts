@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTransactionHistory } from "@/lib/transaction-history";
-import { stackServerApp } from "@/lib/stack/stack.server";
-import { getAccount } from "@/lib/account";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -14,6 +12,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Address is required" }, { status: 400 });
   }
 
+  console.log("address", address);
+  console.log("network", network);
+  console.log("limit", limit);
+  console.log("offset", offset);
   try {
     // Get transaction history using CDP JSON-RPC API
     const transactions = await getTransactionHistory({

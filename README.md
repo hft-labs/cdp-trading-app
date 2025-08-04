@@ -79,7 +79,6 @@
 ### Key Libraries
 - **Viem** - Ethereum interaction
 - **Wagmi** - React hooks for Ethereum
-- **SWR** - Data fetching
 - **Zod** - Schema validation
 
 ## 🚀 Quick Start

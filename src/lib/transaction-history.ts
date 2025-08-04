@@ -22,6 +22,11 @@ export interface TransactionHistoryParams {
 export async function getTransactionHistory(params: TransactionHistoryParams): Promise<Transaction[]> {
     const { address, network = 'base', limit = 50, offset = 0 } = params;
 
+    console.log("address", address);
+    console.log("network", network);
+    console.log("limit", limit);
+    console.log("offset", offset);
+
 
     const rpcUrl = process.env.CDP_RPC_URL;
     if (!rpcUrl) {
@@ -33,12 +38,11 @@ export async function getTransactionHistory(params: TransactionHistoryParams): P
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+            "id": 1,
             jsonrpc: '2.0',
             method: 'cdp_listAddressTransactions',
             params: [{
-                address,
-                pageSize: limit.toString(),
-                pageToken: offset > 0 ? offset.toString() : '',
+                address: "0xA0f307ac2Dc9ddCFEA03Fb2b8945d21a4A81C9c5",
             }],
             id: 1,
         }),
@@ -50,7 +54,7 @@ export async function getTransactionHistory(params: TransactionHistoryParams): P
     }
 
     const data = await response.json();
-
+    console.log("data", data);
     if (data.error) {
         throw new Error(`CDP API error: ${data.error.message}`);
     }

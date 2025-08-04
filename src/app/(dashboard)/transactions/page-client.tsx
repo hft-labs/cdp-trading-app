@@ -9,7 +9,6 @@ export const TransactionsPageClient = () => {
     return (
         <div className="flex flex-row w-full h-full ">
                     <div className="basis-2/3">
-                        
                         <TransactionsTable />
                     </div>
                     <div className="basis-1/3 border-l border-white/10">

@@ -20,7 +20,6 @@
     "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
-    "@stackframe/stack": "^2.8.16",
     "@tailwindcss/postcss": "^4.1.11",
     "@tanstack/react-pacer": "^0.8.0",
     "@tanstack/react-query": "^5.81.5",
@@ -37,10 +36,8 @@
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "swr": "^2.3.4",
     "tailwind-merge": "^3.3.1",
     "viem": "^2.31.6",
-    "wagmi": "^2.15.6",
     "zod": "^3.25.74"
   },
   "devDependencies": {

@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { getTokenByAddress } from "@/lib/tokens";
 import { formatUnits } from "viem";
-import { getPrice } from "./utils";
+import { getPrice } from "@/lib/price";
 import { cdp } from "@/lib/cdp-client";
-
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -17,10 +16,6 @@ export async function GET(request: Request) {
         address: address as `0x${string}`,
         network: "base",
     });
-
-    // Note: CDP EVM API doesn't have transaction history methods
-    // Transaction history is available through CDP's JSON-RPC API
-    // See src/lib/transaction-history.ts for the correct implementation
 
     const tokens = await Promise.all(
         (balancesResponse.balances || []).map(async (balance: any) => {
@@ -44,7 +39,6 @@ export async function GET(request: Request) {
             };
         })
     );
-
 
     const filteredTokens = tokens.filter(Boolean);
     return NextResponse.json({ positions: filteredTokens });

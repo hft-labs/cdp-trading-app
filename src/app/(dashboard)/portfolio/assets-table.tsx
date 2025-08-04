@@ -11,34 +11,49 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useOnramp } from "@/hooks/use-onramp";
+import { usePortfolio } from "@/hooks/use-portfolio";
 import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 
-type Position = {
-    name: string
-    address: string
-    symbol: string
-    decimals: number
-    image: string
-    balance: string
-    price: number
-    value: number
-}
-interface AssetsTableProps {
-    positions: Position[]
-}
-
-export function AssetsTable({ positions }: AssetsTableProps) {
-    const isEmpty = !positions || positions.length === 0 || positions.every((p) => !p.value || Number(p.value) === 0);
+export function AssetsTable() {
     const address = useEvmAddress();
     const user = useCurrentUser();
+    const { positions, isLoading, error } = usePortfolio();
     const { handleOnramp } = useOnramp({
         address: address as string,
         partnerUserId: user?.userId as string,
     });
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] bg-black w-full shadow-xl">
+                <div className="text-2xl font-semibold text-white mb-2">Loading your assets...</div>
+                <div className="text-zinc-400 mb-6">Please wait while we fetch your portfolio data.</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] bg-black w-full shadow-xl">
+                <div className="text-2xl font-semibold text-white mb-2">Error loading assets</div>
+                <div className="text-zinc-400 mb-6">There was an issue loading your portfolio data.</div>
+                <Button
+                    onClick={() => window.location.reload()}
+                    variant="ghost"
+                    className="bg-white text-black"
+                >
+                    Try Again
+                </Button>
+            </div>
+        );
+    }
+
+    const isEmpty = !positions || positions.length === 0 || positions.every((p) => !p.value || Number(p.value) === 0);
+
     if (isEmpty) {
         return (
             <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] bg-black w-full shadow-xl">
-                <div className="text-2xl font-semibold text-white mb-2">You don’t have any assets yet</div>
+                <div className="text-2xl font-semibold text-white mb-2">You don't have any assets yet</div>
                 <div className="text-zinc-400 mb-6">Start by making your first deposit to see your assets here.</div>
                 <Button
                     onClick={handleOnramp}
@@ -50,6 +65,7 @@ export function AssetsTable({ positions }: AssetsTableProps) {
             </div>
         );
     }
+
     return (
         <div className="overflow-hidden shadow-xl bg-black w-full h-full">
             <Table className="min-w-full">
