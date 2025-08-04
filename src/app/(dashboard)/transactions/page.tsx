@@ -1,13 +1,10 @@
-import { SwapProvider } from "@/components/swap/swap-provider";
-import { TransactionsPageClient } from "./page-client";
-import SidebarLayout from "@/components/sidebar-layout";
-
-export default async function Home() {
+export default async function Transactions() {
   return (
-    <SidebarLayout>
-      <SwapProvider>
-        <TransactionsPageClient />
-      </SwapProvider>
-    </SidebarLayout>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+            <h1 className="text-4xl font-bold mb-4">Transactions</h1>
+            <p className="text-gray-400">Your transaction history will appear here</p>
+        </div>
+    </div>
   );
 }

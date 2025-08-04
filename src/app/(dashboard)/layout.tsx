@@ -1,5 +1,3 @@
-"use client";
-
 import { RootProviders } from "@/components/providers/root-provider";
 
 export default function Page ({ children } : { children?: React.ReactNode }) {

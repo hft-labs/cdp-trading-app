@@ -1,45 +1,54 @@
-import { NextResponse } from "next/server";
-import { getTokenByAddress } from "@/lib/tokens";
+import { getTokenBySymbol } from "@/lib/tokens";
 import { formatUnits } from "viem";
 import { getPrice } from "@/lib/price";
 import { cdp } from "@/lib/cdp-client";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const address = searchParams.get("address");
+    const address = searchParams.get('address');
 
     if (!address) {
-        return NextResponse.json({ error: "Address is required" }, { status: 400 });
+        return Response.json({ error: 'Address is required' }, { status: 400 });
     }
 
-    const balancesResponse = await cdp.evm.listTokenBalances({
-        address: address as `0x${string}`,
-        network: "base",
-    });
+    try {
+        const page = await cdp.evm.listTokenBalances({
+            address: address as `0x${string}`,
+            network: "base",
+        });
 
-    const tokens = await Promise.all(
-        (balancesResponse.balances || []).map(async (balance: any) => {
-            const tokenInfo = getTokenByAddress(balance.token?.contractAddress);
-            if (!tokenInfo) return null;
-            const symbol = tokenInfo.symbol;
-            const decimals = tokenInfo.decimals;
-            const balanceFormatted = formatUnits(BigInt(balance.amount.amount), decimals);
-            const price = symbol ? await getPrice(symbol) : 0;
-            const value = parseFloat(balanceFormatted) * price;
-            return {
-                symbol,
-                name: tokenInfo.name,
-                address: tokenInfo.address,
-                decimals,
-                image: tokenInfo.image,
-                chainId: tokenInfo.chainId,
-                balance: balanceFormatted,
-                price: price,
-                value: value,
-            };
-        })
-    );
+        const positions = await Promise.all(
+            (page.balances || []).map(async (balance: any) => {
+                const tokenInfo = getTokenBySymbol(balance.symbol);
+                if (!tokenInfo) {
+                    return null;
+                }
 
-    const filteredTokens = tokens.filter(Boolean);
-    return NextResponse.json({ positions: filteredTokens });
+                const formattedBalance = formatUnits(balance.amount, tokenInfo.decimals);
+                const price = await getPrice(balance.symbol);
+                const value = parseFloat(formattedBalance) * price;
+
+                return {
+                    symbol: balance.symbol,
+                    name: tokenInfo.name,
+                    address: balance.address,
+                    decimals: tokenInfo.decimals,
+                    image: tokenInfo.image,
+                    chainId: 8453, // Base mainnet
+                    balance: formattedBalance,
+                    price: price,
+                    value: value,
+                };
+            })
+        );
+
+        const validPositions = positions.filter(Boolean);
+
+        return Response.json({
+            positions: validPositions,
+        });
+    } catch (error) {
+        console.error('Error fetching portfolio:', error);
+        return Response.json({ error: 'Failed to fetch portfolio' }, { status: 500 });
+    }
 }

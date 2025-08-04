@@ -21,7 +21,8 @@ import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Logo } from "./logo";
-import { AuthButton } from "@coinbase/cdp-react/components/AuthButton";
+import { useCurrentUser } from "@coinbase/cdp-hooks";
+import { Button } from "./ui/button";
 
 type BreadcrumbItem = { item: React.ReactNode, href: string }
 
@@ -159,10 +160,19 @@ function PageHeader() {
   return null;
 }
 
+interface SidebarLayoutProps {
+    children?: React.ReactNode;
+    showAuth?: boolean;
+}
 
-export default function SidebarLayout(props: { children?: React.ReactNode }) {
+export default function SidebarLayout({
+    children,
+    showAuth = true,
+}: SidebarLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { resolvedTheme, setTheme } = useTheme();
+    const user = useCurrentUser();
+	const userAuthenticated = user !== null;
 
     return (
         <div className="w-full flex">
@@ -195,11 +205,15 @@ export default function SidebarLayout(props: { children?: React.ReactNode }) {
                     </div>
 
                     <div className="flex gap-4">
-                        <AuthButton />
+                    {!userAuthenticated && showAuth && (
+						<Link href="/sign-in">
+							<Button className="bg-white text-black">Sign In</Button>
+						</Link>
+					)}
                     </div>
                 </div>
                 <div className="flex-grow relative">
-                    {props.children}
+                    {children}
                 </div>
             </div>
         </div>

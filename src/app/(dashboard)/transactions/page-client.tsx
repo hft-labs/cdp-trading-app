@@ -4,10 +4,14 @@ import { WalletControls } from "@/components/wallet-controls";
 import { Separator } from "@/components/ui/separator";
 import { SwapWidget } from "@/components/swap/swap-widget";
 import { TransactionsTable } from "./transactions-table";
+import SidebarLayout from "@/components/sidebar-layout";
+import { SwapProvider } from "@/components/swap/swap-provider";
 
 export const TransactionsPageClient = () => {
     return (
-        <div className="flex flex-row w-full h-full ">
+        <SidebarLayout>
+            <SwapProvider>
+                <div className="flex flex-row w-full h-full ">
                     <div className="basis-2/3">
                         <TransactionsTable />
                     </div>
@@ -17,5 +21,8 @@ export const TransactionsPageClient = () => {
                         <WalletControls />
                     </div>
                 </div>
+            </SwapProvider>
+        </SidebarLayout>
+
     );
 };
