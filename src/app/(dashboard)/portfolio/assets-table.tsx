@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useOnramp } from "@/hooks/use-onramp";
 import { usePortfolio } from "@/hooks/use-portfolio";
 import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
@@ -17,17 +18,46 @@ import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 export function AssetsTable() {
     const address = useEvmAddress();
     const user = useCurrentUser();
-    const { positions, isLoading, error } = usePortfolio();
+    const { positions, isPending, error } = usePortfolio();
     const { handleOnramp } = useOnramp({
         address: address as string,
         partnerUserId: user?.userId as string,
     });
 
-    if (isLoading) {
+    if (isPending) {
         return (
-            <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] bg-black w-full shadow-xl">
-                <div className="text-2xl font-semibold text-white mb-2">Loading your assets...</div>
-                <div className="text-zinc-400 mb-6">Please wait while we fetch your portfolio data.</div>
+            <div className="overflow-hidden shadow-xl bg-black w-full h-full">
+                <Table className="min-w-full">
+                    <TableHeader className="border-none !border-0 bg-black">
+                        <TableRow className="!border-0">
+                            <TableHead className="text-white/60 font-bold text-sm px-6 py-4 border-none">Asset</TableHead>
+                            <TableHead className="text-white/60 font-bold text-sm px-6 py-4 border-none">Balance</TableHead>
+                            <TableHead className="text-white/60 font-bold text-sm px-6 py-4 border-none">Price</TableHead>
+                            <TableHead className="text-white/60 font-bold text-sm px-6 py-4 border-none text-right">Value</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody className="bg-black">
+                        {[...Array(5)].map((_, idx) => (
+                            <TableRow key={idx} className="!border-0">
+                                <TableCell className="px-6 py-4 align-middle">
+                                    <div className="flex items-center gap-3">
+                                        <Skeleton className="w-8 h-8 rounded-full bg-gray-700" />
+                                        <Skeleton className="h-5 w-16 bg-gray-700" />
+                                    </div>
+                                </TableCell>
+                                <TableCell className="px-6 py-4 align-middle">
+                                    <Skeleton className="h-5 w-20 bg-gray-700" />
+                                </TableCell>
+                                <TableCell className="px-6 py-4 align-middle">
+                                    <Skeleton className="h-5 w-16 bg-gray-700" />
+                                </TableCell>
+                                <TableCell className="px-6 py-4 text-right align-middle">
+                                    <Skeleton className="h-5 w-20 bg-gray-700 ml-auto" />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
         );
     }

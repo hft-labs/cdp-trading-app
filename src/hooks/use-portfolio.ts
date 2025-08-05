@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEvmAddress } from "@coinbase/cdp-hooks";
+import { useEvmAddress, useIsInitialized } from "@coinbase/cdp-hooks";
 
 export interface PortfolioPosition {
     symbol: string;
@@ -19,27 +19,29 @@ export interface PortfolioData {
 
 export const usePortfolio = () => {
     const address = useEvmAddress();
+    const isInitialized = useIsInitialized();
     
-    const { data, isLoading, error } = useQuery({
+    const { data, isLoading, isPending, error } = useQuery({
         queryKey: ['portfolio', address],
         queryFn: async (): Promise<PortfolioData> => {
             if (!address) {
                 throw new Error("Address is required");
             }
+            console.log("fetching portfolio", address);
             const response = await fetch(`/api/portfolio?address=${address}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch portfolio data");
             }
             return response.json();
         },
-        enabled: !!address,
+        enabled: !!address && isInitialized,
         refetchInterval: 5000, // Refetch every 5 seconds
     });
 
     return {
         portfolio: data,
         positions: data?.positions || [],
-        isLoading,
+        isPending,
         error,
     };
 }; 

@@ -17,22 +17,45 @@ export async function GET(request: Request) {
             network: "base",
         });
 
+        console.log("page", page.balances);
         const positions = await Promise.all(
             (page.balances || []).map(async (balance: any) => {
-                const tokenInfo = getTokenBySymbol(balance.symbol);
+                // Access the correct nested structure
+                const symbol = balance.token.symbol;
+                const contractAddress = balance.token.contractAddress;
+                const amount = balance.amount.amount;
+                const decimals = balance.amount.decimals;
+
+                // Only process tokens that are in our baseTokens list
+                const tokenInfo = getTokenBySymbol(symbol);
                 if (!tokenInfo) {
-                    return null;
+                    return null; // Skip unknown tokens
                 }
 
-                const formattedBalance = formatUnits(balance.amount, tokenInfo.decimals);
-                const price = await getPrice(balance.symbol);
-                const value = parseFloat(formattedBalance) * price;
+                const formattedBalance = formatUnits(amount, decimals);
+                
+                // Only try to get price for known tokens that have USDC pairs
+                let price = 0;
+                let value = 0;
+                
+                if (symbol !== 'USDC') {
+                    try {
+                        price = await getPrice(symbol);
+                        value = parseFloat(formattedBalance) * price;
+                    } catch (error) {
+                        console.error(`Error getting price for ${symbol}:`, error);
+                        // Keep price and value as 0 for tokens without liquidity
+                    }
+                } else {
+                    price = 1;
+                    value = parseFloat(formattedBalance);
+                }
 
                 return {
-                    symbol: balance.symbol,
+                    symbol: symbol,
                     name: tokenInfo.name,
-                    address: balance.address,
-                    decimals: tokenInfo.decimals,
+                    address: contractAddress,
+                    decimals: decimals,
                     image: tokenInfo.image,
                     chainId: 8453, // Base mainnet
                     balance: formattedBalance,
@@ -43,7 +66,7 @@ export async function GET(request: Request) {
         );
 
         const validPositions = positions.filter(Boolean);
-
+        console.log("validPositions", validPositions);
         return Response.json({
             positions: validPositions,
         });

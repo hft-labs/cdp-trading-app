@@ -7,7 +7,7 @@ import { TransactionsTable } from "./transactions-table";
 import SidebarLayout from "@/components/sidebar-layout";
 import { SwapProvider } from "@/components/swap/swap-provider";
 
-export const TransactionsPageClient = () => {
+export const PageClient = () => {
     return (
         <SidebarLayout>
             <SwapProvider>
