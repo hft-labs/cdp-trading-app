@@ -1,49 +1,77 @@
-import { NextResponse } from "next/server";
-import { getTokenByAddress } from "@/lib/tokens";
+import { getTokenBySymbol } from "@/lib/tokens";
 import { formatUnits } from "viem";
-import { getPrice } from "./utils";
+import { getPrice } from "@/lib/price";
 import { cdp } from "@/lib/cdp-client";
-
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const address = searchParams.get("address");
+    const address = searchParams.get('address');
 
     if (!address) {
-        return NextResponse.json({ error: "Address is required" }, { status: 400 });
+        return Response.json({ error: 'Address is required' }, { status: 400 });
     }
 
-    const balancesResponse = await cdp.evm.listTokenBalances({
-        address: address as `0x${string}`,
-        network: "base",
-    });
+    try {
+        const page = await cdp.evm.listTokenBalances({
+            address: address as `0x${string}`,
+            network: "base",
+        });
 
-    // Note: CDP EVM API doesn't have transaction history methods
-    // Transaction history is available through CDP's JSON-RPC API
-    // See src/lib/transaction-history.ts for the correct implementation
+        console.log("page", page.balances);
+        const positions = await Promise.all(
+            (page.balances || []).map(async (balance: any) => {
+                // Access the correct nested structure
+                const symbol = balance.token.symbol;
+                const contractAddress = balance.token.contractAddress;
+                const amount = balance.amount.amount;
+                const decimals = balance.amount.decimals;
 
-    const tokens = await Promise.all(
-        (balancesResponse.balances || []).map(async (balance: any) => {
-            const tokenInfo = getTokenByAddress(balance.token?.contractAddress);
-            if (!tokenInfo) return null;
-            const symbol = tokenInfo.symbol;
-            const decimals = tokenInfo.decimals;
-            const balanceFormatted = formatUnits(BigInt(balance.amount.amount), decimals);
-            const price = symbol ? await getPrice(symbol) : 0;
-            const value = parseFloat(balanceFormatted) * price;
-            return {
-                symbol,
-                name: tokenInfo.name,
-                address: tokenInfo.address,
-                decimals,
-                image: tokenInfo.image,
-                chainId: tokenInfo.chainId,
-                balance: balanceFormatted,
-                price: price,
-                value: value,
-            };
-        })
-    );
-    const filteredTokens = tokens.filter(Boolean);
-    return NextResponse.json({ positions: filteredTokens });
+                // Only process tokens that are in our baseTokens list
+                const tokenInfo = getTokenBySymbol(symbol);
+                if (!tokenInfo) {
+                    return null; // Skip unknown tokens
+                }
+
+                const formattedBalance = formatUnits(amount, decimals);
+                
+                // Only try to get price for known tokens that have USDC pairs
+                let price = 0;
+                let value = 0;
+                
+                if (symbol !== 'USDC') {
+                    try {
+                        price = await getPrice(symbol);
+                        value = parseFloat(formattedBalance) * price;
+                    } catch (error) {
+                        console.error(`Error getting price for ${symbol}:`, error);
+                        // Keep price and value as 0 for tokens without liquidity
+                    }
+                } else {
+                    price = 1;
+                    value = parseFloat(formattedBalance);
+                }
+
+                return {
+                    symbol: symbol,
+                    name: tokenInfo.name,
+                    address: contractAddress,
+                    decimals: decimals,
+                    image: tokenInfo.image,
+                    chainId: 8453, // Base mainnet
+                    balance: formattedBalance,
+                    price: price,
+                    value: value,
+                };
+            })
+        );
+
+        const validPositions = positions.filter(Boolean);
+        console.log("validPositions", validPositions);
+        return Response.json({
+            positions: validPositions,
+        });
+    } catch (error) {
+        console.error('Error fetching portfolio:', error);
+        return Response.json({ error: 'Failed to fetch portfolio' }, { status: 500 });
+    }
 }

@@ -6,7 +6,6 @@ import { MaxButton } from "./max-button"
 import { TokenMenu } from "./token-menu"
 import { useBalance } from "@/hooks/use-balance"
 import { cn } from "@/lib/utils"
-import { useUser } from "@stackframe/stack"
 
 export const TokenSection = ({
     type
@@ -20,8 +19,7 @@ export const TokenSection = ({
         fromToken,
         toToken,
     } = useSwapProvider();
-    const user = useUser(); 
-    const isLoggedIn = !!user;
+
 
  
     const handleSetAmount = (value: string) => {
@@ -73,12 +71,12 @@ export const TokenSection = ({
             />
             <TokenMenu type={type} />
           </div>
-          {isLoggedIn && <div className="flex items-center gap-3">
+          {/* {isLoggedIn && <div className="flex items-center gap-3">
             <span className="text-gray-400 text-lg">
               {availableBalance}
             </span>
             <MaxButton type={type} />
-          </div>}
+          </div>} */}
         </div>
       </div>
     )

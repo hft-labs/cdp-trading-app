@@ -1,23 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTransactionHistory } from "@/lib/transaction-history";
-import { stackServerApp } from "@/lib/stack/stack.server";
-import { getAccount } from "@/lib/account";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const network = searchParams.get("network") || "base";
   const limit = parseInt(searchParams.get("limit") || "50");
   const offset = parseInt(searchParams.get("offset") || "0");
-  const user = await stackServerApp.getUser({ or: "redirect" });
 
-  const { smartAccount } = await getAccount(user.id);
-  const address = smartAccount?.address;
-  if (!smartAccount) {
-      throw new Error("Smart account not found");
-  }
+  const address = searchParams.get("address");
   if (!address) {
     return NextResponse.json({ error: "Address is required" }, { status: 400 });
   }
+
 
   try {
     // Get transaction history using CDP JSON-RPC API

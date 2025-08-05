@@ -1,20 +1,9 @@
-import { getAccount } from "@/lib/account";
-import { stackServerApp } from "@/lib/stack/stack.server";
-import { AccountProvider } from "@/components/providers/account-provider";
-import { SwapProvider } from "@/components/swap/swap-provider";
-import { TransactionsPageClient } from "./page-client";
+import { PageClient } from "./page-client";
 
-export default async function Home() {
-  const user = await stackServerApp.getUser({
-    or: "redirect"
-  });
-
-  const account = await getAccount(user?.id);
+export default async function Transactions() {
   return (
-    <AccountProvider accountAddress={account.smartAccount?.address}>
-      <SwapProvider>
-          <TransactionsPageClient />
-      </SwapProvider>
-    </AccountProvider>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <PageClient />
+    </div>
   );
 }

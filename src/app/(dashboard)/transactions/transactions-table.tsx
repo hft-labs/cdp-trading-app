@@ -10,69 +10,26 @@ import {
 } from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button";
-import { useUser } from "@stackframe/stack";
-import { useAccountContext } from "@/components/providers/account-provider";
 import { useOnramp } from "@/hooks/use-onramp";
-import { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowUpRight, ArrowDownLeft, ArrowRightLeft, ExternalLink, Loader2 } from "lucide-react";
-
-interface Transaction {
-    hash: string;
-    timestamp: string;
-    type: 'swap' | 'transfer' | 'deposit' | 'withdrawal';
-    from: string;
-    to: string;
-    value: string;
-    asset: string;
-    status: 'pending' | 'confirmed' | 'failed';
-    blockNumber?: string;
-    gasUsed?: string;
-    network: string;
-}
-
-interface TransactionsTableProps {
-}
+import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
+import { useTransactions, type Transaction } from "@/hooks/use-transactions";
 
 export function TransactionsTable() {
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const user = useUser();
-    const { accountAddress } = useAccountContext();
+    const user = useCurrentUser();
+    const address = useEvmAddress();
+    
+    const { transactions, isLoading: loading, error } = useTransactions(address);
+    
     const { handleOnramp } = useOnramp({
-        address: accountAddress || "",
-        partnerUserId: user?.id || "",
+        address: address as string,
+        partnerUserId: user?.userId as string,
     });
-
-    useEffect(() => {
-        const fetchTransactions = async () => {
-            if (!accountAddress) return;
-            
-            try {
-                setLoading(true);
-                setError(null);
-                
-                // Use the real CDP transaction history API
-                const response = await fetch(`/api/transactions?address=${accountAddress}&network=base&limit=50`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                setTransactions(data.transactions || []);
-                
-            } catch (error) {
-                console.error("Error fetching transactions:", error);
-                setError("Failed to load transaction history");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTransactions();
-    }, [accountAddress]);
+    
+    if (!user) {
+        return null;
+    }
 
     const getTransactionIcon = (type: Transaction['type']) => {
         switch (type) {
@@ -145,7 +102,7 @@ export function TransactionsTable() {
         return (
             <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] bg-black w-full shadow-xl">
                 <div className="text-2xl font-semibold text-white mb-2">Error loading transactions</div>
-                <div className="text-zinc-400 mb-6">{error}</div>
+                <div className="text-zinc-400 mb-6">{error instanceof Error ? error.message : 'Failed to load transaction history'}</div>
                 <Button
                     onClick={() => window.location.reload()}
                     variant="ghost"

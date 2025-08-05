@@ -1,77 +1,50 @@
-import { getAccount } from "@/lib/account";
-import { stackServerApp } from "@/lib/stack/stack.server";
+import { NextRequest } from "next/server";
 import { getTokenBySymbol } from "@/lib/tokens";
-import { NextResponse } from "next/server";
-import { Address, parseUnits } from "viem";
-import { handleTokenAllowance } from "./utils";
-import { publicClient } from "./utils";
+import { parseUnits } from "viem";
+import { cdp } from "@/lib/cdp-client";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        const { fromToken, toToken, fromAmount, taker } = body;
 
-    const user = await stackServerApp.getUser();
-    if (user === null) {
-        return NextResponse.json({ error: "User not found" }, { status: 401 });
+        const fromTokenInfo = getTokenBySymbol(fromToken);
+        const toTokenInfo = getTokenBySymbol(toToken);
+
+        if (!fromTokenInfo || !toTokenInfo) {
+            return Response.json({ error: 'Invalid token' }, { status: 400 });
+        }
+
+        const swapPrice = await cdp.evm.getSwapPrice({
+            fromToken: fromTokenInfo.address as `0x${string}`,
+            toToken: toTokenInfo.address as `0x${string}`,
+            fromAmount: parseUnits(fromAmount, fromTokenInfo.decimals),
+            taker: taker as `0x${string}`,
+            network: "base",
+        });
+
+        if ('toAmount' in swapPrice) {
+            const swapTransaction = await cdp.evm.createSwapQuote({
+                fromToken: fromTokenInfo.address as `0x${string}`,
+                toToken: toTokenInfo.address as `0x${string}`,
+                fromAmount: parseUnits(fromAmount, fromTokenInfo.decimals),
+                taker: taker as `0x${string}`,
+                network: "base",
+            });
+
+            if ('transaction' in swapTransaction) {
+                return Response.json({
+                    transactionHash: swapTransaction.transaction?.to || 'pending',
+                    toAmount: swapPrice.toAmount.toString(),
+                });
+            } else {
+                return Response.json({ error: 'Swap quote unavailable' }, { status: 400 });
+            }
+        } else {
+            return Response.json({ error: 'Swap is unavailable' }, { status: 400 });
+        }
+    } catch (error) {
+        console.error('Error executing swap:', error);
+        return Response.json({ error: 'Failed to execute swap' }, { status: 500 });
     }
-
-    const { fromToken, toToken, fromAmount } = await request.json();
-
-    if (!fromToken || !toToken || !fromAmount) {
-        return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-    }
-
-    const { smartAccount } = await getAccount(user.id);
-    if (!smartAccount) {
-        return NextResponse.json({ error: "Smart account not found" }, { status: 400 });
-    }
-
-    const fromTokenObj = getTokenBySymbol(fromToken);
-    const toTokenObj = getTokenBySymbol(toToken);
-
-    if (!fromTokenObj || !toTokenObj) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 400 });
-    }
-
-    const fromAmountBigInt = parseUnits(fromAmount, fromTokenObj.decimals);
-
-    if (!fromToken.isNativeAsset) {
-        await handleTokenAllowance(
-            smartAccount,
-            fromTokenObj.address as Address,
-            fromTokenObj.symbol,
-            fromAmountBigInt
-        );
-    }
-
-    const result = await smartAccount.swap({
-        network: "base",
-        toToken: toTokenObj.address as Address,
-        fromToken: fromTokenObj.address as Address,
-        fromAmount: fromAmountBigInt,
-        slippageBps: 100,
-    });
-    // const quote = await smartAccount.quoteSwap({
-    //     network: "base",
-    //     toToken: toTokenObj.address as Address,
-    //     fromToken: fromTokenObj.address as Address,
-    //     fromAmount: fromAmountBigInt,
-    //     slippageBps: 100,
-    // });
-
-    // if(!quote.liquidityAvailable) {
-    //     return NextResponse.json({ error: "Insufficient liquidity" }, { status: 400 });
-    // }
-
-
-
-    const receipt = await publicClient.waitForTransactionReceipt({
-        hash: result.userOpHash,
-    });
-    const response = {
-        hash: result.userOpHash,
-        blockNumber: receipt.blockNumber.toString(),
-        gasUsed: receipt.gasUsed.toString(),
-        status: receipt.status === 'success' ? 'Success ✅' : 'Failed ❌',
-        transactionExplorer: `https://basescan.org/tx/${result.userOpHash}`
-    }
-    return NextResponse.json(response);
 }

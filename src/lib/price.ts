@@ -1,18 +1,28 @@
 import { getTokenBySymbol } from "@/lib/tokens";
-import { parseUnits } from "viem";
-import { formatUnits } from "viem";
+import { parseUnits, formatUnits } from "viem";
 import { cdp } from "@/lib/cdp-client";
 
 
 export const getPrice = async (symbol: string): Promise<number> => {
     const fromToken = getTokenBySymbol("USDC");
-    const toToken = getTokenBySymbol(symbol);
+    let toToken = getTokenBySymbol(symbol);
+    
     if (!fromToken || !toToken) {
         throw new Error(`Token ${symbol} not found`);
     }
+    
     if (symbol === "USDC") {
         return 1;
     }
+    
+    // For ETH, use WETH for pricing since they have the same value
+    if (symbol === "ETH") {
+        toToken = getTokenBySymbol("WETH");
+        if (!toToken) {
+            throw new Error(`WETH token not found for ETH pricing`);
+        }
+    }
+    
     const tenUSDC = parseUnits("10", fromToken.decimals);
     const swapPrice = await cdp.evm.getSwapPrice({
         fromToken: fromToken.address as `0x${string}`,
