@@ -5,7 +5,7 @@ export default function Page ({ children } : { children?: React.ReactNode }) {
     <div className="flex flex-col h-screen">
       <div className="flex-1">
          <RootProviders>
-          {children}
+            {children}
          </RootProviders>
       </div>
     </div>

@@ -33,7 +33,7 @@ function OTP(props: {
       })
         .then(result => {
           console.log("Signed in user:", result.user);
-          router.push('/beta');
+          router.push('/');
         })
         .catch(e => {
           console.error("OTP verification failed:", e);

@@ -1,9 +1,8 @@
 "use client";
 
 import SidebarLayout from "@/components/sidebar-layout";
-import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 import { SwapProvider } from "@/components/swap/swap-provider";
-import { DashboardOverview } from "./dashboard-overview";
+import { DashboardOverview } from "../dashboard-overview";
 import { SwapWidget } from "@/components/swap/swap-widget";
 import { Separator } from "@/components/ui/separator";
 import { WalletControls } from "@/components/wallet-controls";
