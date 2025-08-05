@@ -1,12 +1,7 @@
 "use client";
 import { useCallback } from "react";
 
-const appId = process.env.NEXT_PUBLIC_COINBASE_APP_ID as string;
 const redirectUrl = process.env.NEXT_PUBLIC_APP_URL as string;
-
-if (!appId) {
-    throw new Error("NEXT_PUBLIC_COINBASE_APP_ID is not set");
-}
 
 if (!redirectUrl) {
     throw new Error("NEXT_PUBLIC_APP_URL is not set");
@@ -19,11 +14,29 @@ interface UseOnrampProps {
 
 export function useOnramp({ address, partnerUserId }: UseOnrampProps) {
 
-    const handleOnramp = useCallback(() => {
+    const handleOnramp = useCallback(async () => {
+        const sessionResponse = await fetch('/api/session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                addresses: [
+                    {
+                        address,
+                        blockchains: ["base"],
+                    }
+                ],
+                assets: ["USDC"],
+            }),
+        });
+
+        const sessionData = await sessionResponse.json();
+        const sessionToken = sessionData.token;
         const callbackUrl = `${redirectUrl}/explore`;
-        const buyUrl = `https://pay.coinbase.com/buy/select-asset?appId=${process.env.NEXT_PUBLIC_COINBASE_APP_ID}&addresses={"${address}":["base"]}&assets=["USDC"]&partnerUserId=${partnerUserId}&redirectUrl=${encodeURIComponent(callbackUrl)}`;
+        const buyUrl = `https://pay.coinbase.com/buy/select-asset?sessionToken=${sessionToken}&partnerUserId=${partnerUserId}&defaultAsset=USDC&defaultNetwork=base&redirectUrl=${encodeURIComponent(callbackUrl)}`;
         window.open(buyUrl, "_blank");
     }, [address, partnerUserId]);
 
     return { handleOnramp };
-}
+}           
