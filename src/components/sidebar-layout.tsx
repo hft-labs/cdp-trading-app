@@ -21,7 +21,7 @@ import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Logo } from "./logo";
-import { useCurrentUser } from "@coinbase/cdp-hooks";
+import { useCurrentUser, useIsInitialized, useSignOut } from "@coinbase/cdp-hooks";
 import { Button } from "./ui/button";
 
 type BreadcrumbItem = { item: React.ReactNode, href: string }
@@ -173,6 +173,8 @@ export default function SidebarLayout({
     const { resolvedTheme, setTheme } = useTheme();
     const user = useCurrentUser();
 	const userAuthenticated = user !== null;
+    const isInitialized = useIsInitialized();
+    const signOut = useSignOut();
 
     return (
         <div className="w-full flex">
@@ -210,6 +212,9 @@ export default function SidebarLayout({
 							<Button className="bg-white text-black">Sign In</Button>
 						</Link>
 					)}
+                    {userAuthenticated && isInitialized && (
+                        <Button variant="outline" onClick={() => signOut()}>Sign Out</Button>
+                    )}
                     </div>
                 </div>
                 <div className="flex-grow relative">

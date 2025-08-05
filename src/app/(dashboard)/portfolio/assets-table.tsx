@@ -82,7 +82,7 @@ export function AssetsTable() {
 
     if (isEmpty) {
         return (
-            <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] bg-black w-full shadow-xl">
+            <div className="flex flex-1 flex-col items-center justify-center min-h-[60vh] bg-black w-full h-full shadow-xl">
                 <div className="text-2xl font-semibold text-white mb-2">You don't have any assets yet</div>
                 <div className="text-zinc-400 mb-6">Start by making your first deposit to see your assets here.</div>
                 <Button
