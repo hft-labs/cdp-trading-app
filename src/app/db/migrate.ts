@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const main = async () => {
   try {
-    const migrationsFolder = path.join(process.cwd(), 'src', 'db', 'migrations');
+    const migrationsFolder = path.join(process.cwd(), 'src', 'app', 'db', 'migrations');
     await migrate(db, { migrationsFolder });
   } catch (error) {
     console.error('Error during migration:', error);

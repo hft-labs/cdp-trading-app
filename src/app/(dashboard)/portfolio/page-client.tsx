@@ -6,7 +6,7 @@ import { WalletControls } from "@/components/wallet-controls";
 import { SwapWidget } from "@/components/swap/swap-widget";
 import { Separator } from "@/components/ui/separator";
 import SidebarLayout from "@/components/sidebar-layout";
-import { TotalValue } from "./total-value";
+import { TotalValue } from "./total-value"; 
 
 export const PageClient = () => {
     return (

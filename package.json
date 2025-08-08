@@ -7,8 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "bunx drizzle-kit generate --dialect postgresql --schema ./src/db/schema/index.ts --out ./src/db/migrations",
-    "migrate:apply": "bun run src/db/migrate.ts"
+    "migrate": "bunx drizzle-kit generate --dialect postgresql --schema ./src/app/db/schema/index.ts --out ./src/app/db/migrations",
+    "migrate:apply": "bun run src/app/db/migrate.ts",
+    "db:reset": "bun run src/app/db/reset.ts",
+    "db:reset-only": "bun run src/app/db/reset-only.ts",
+    "db:create-tables": "bun run src/app/db/create-tables-manual.ts",
+    "db:seed": "bun run src/app/db/seed.ts",
+    "db:quick-seed": "bun run src/app/db/quick-seed.ts",
+    "test:cron": "bun run src/app/db/test-cron.ts"
   },
   "dependencies": {
     "@coinbase/cdp-core": "^0.0.16",
