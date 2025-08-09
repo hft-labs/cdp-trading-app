@@ -4,7 +4,7 @@ import { MagicLinkSignIn } from "@/components/sign-in-component";
 
 export default function PageClient() {
     return (
-        <div className="flex items-center justify-center min-h-[calc(100vh-50px)]">
+        <div className="flex items-center justify-center min-h-[calc(100vh-50px)] bg-black">
                 <div className="w-full max-w-sm mx-auto px-6">
                     <div className="flex flex-col items-center mb-8">
                         <h1 className="text-2xl font-semibold text-white mb-2 text-center">

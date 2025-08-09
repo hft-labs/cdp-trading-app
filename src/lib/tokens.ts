@@ -120,7 +120,19 @@ const eurcToken: Token = {
 
 
 
+// ETH token for Base network (native asset)
+const ethToken: Token = {
+  name: 'ETH',
+  address: '', // Native asset, no contract address
+  symbol: 'ETH',
+  decimals: 18,
+  image: 'https://wallet-api-production.s3.amazonaws.com/uploads/tokens/eth_288.png',
+  chainId: base.id,
+  isNativeAsset: true
+};
+
 const baseTokens = [
+  ethToken,
   wethToken,
   usdcToken,
   degenToken,

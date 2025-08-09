@@ -34,6 +34,9 @@ export const getPrice = async (symbol: string): Promise<number> => {
     if (swapPrice.liquidityAvailable) {
         const toAmount = formatUnits(swapPrice.toAmount, toToken.decimals);
         const fromAmount = formatUnits(swapPrice.fromAmount, fromToken.decimals);
+        // Fix: If fromAmount USDC gets toAmount of token, then 1 token = fromAmount/toAmount USD
+        // But we want price per token, so it should be fromAmount/toAmount
+        // Actually, let me think: 10 USDC -> X WETH means 1 WETH = 10/X USD
         const price = parseFloat(fromAmount) / parseFloat(toAmount);
         return price;
     }

@@ -10,16 +10,17 @@ export const usePrice = (fromToken: string, toToken: string, amount: string) => 
     const accountAddress = useEvmAddress();
     const { data, isLoading, error } = useQuery({
         queryKey: ['price', fromToken, toToken, amount], queryFn: async () => {
-            const parsedAmount = parseUnits(amount, getTokenBySymbol(fromToken)!.decimals).toString()
-
             const body = {
                 fromToken: getTokenBySymbol(fromToken)!.symbol,
                 toToken: getTokenBySymbol(toToken)!.symbol,
-                fromAmount: parsedAmount,
+                fromAmount: amount, // Send human-readable amount, let API parse it
                 taker: accountAddress || defaultTaker,
             }
             const response = await fetch(`/api/price`, {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify(body)
             })
             const data = await response.json();

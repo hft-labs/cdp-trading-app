@@ -6,6 +6,7 @@ import { Typography } from "@/components/ui/typography";
 import { Loader2, ArrowDown, Info } from "lucide-react";
 import { getTokenBySymbol } from "@/lib/tokens";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
+import { parseUnits } from "viem";
 
 interface PriceData {
   fromAmount: string;
@@ -40,7 +41,7 @@ export function PriceDisplay() {
       setError(null);
 
       try {
-        const response = await fetch("/api/prices", {
+        const response = await fetch("/api/price", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -48,7 +49,7 @@ export function PriceDisplay() {
           body: JSON.stringify({
             fromToken,
             toToken,
-            fromAmount: parseUnits(fromAmount, getTokenBySymbol(fromToken)?.decimals || 18).toString(),
+            fromAmount, // Send as human-readable amount, let API parse it
             taker: address,
           }),
         });
@@ -158,9 +159,4 @@ export function PriceDisplay() {
   );
 }
 
-// Helper function to parse units
-function parseUnits(value: string, decimals: number): bigint {
-  const [whole, fraction = ''] = value.split('.');
-  const paddedFraction = fraction.padEnd(decimals, '0').slice(0, decimals);
-  return BigInt(whole + paddedFraction);
-} 
+ 

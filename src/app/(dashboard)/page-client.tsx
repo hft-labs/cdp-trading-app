@@ -1,12 +1,12 @@
 "use client";
 
 import SidebarLayout from "@/components/sidebar-layout";
-import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 import { SwapProvider } from "@/components/swap/swap-provider";
 import { DashboardOverview } from "./dashboard-overview";
 import { SwapWidget } from "@/components/swap/swap-widget";
 import { Separator } from "@/components/ui/separator";
 import { WalletControls } from "@/components/wallet-controls";
+import { BalanceChart } from "@/components/balance-chart";
 
 export default function PageClient() {
     return (
@@ -14,6 +14,7 @@ export default function PageClient() {
             <SwapProvider>
                 <div className="flex flex-row w-full h-full px-8 gap-8 bg-black">
                     <div className="basis-2/3">
+                        <BalanceChart className="mb-6" />
                         <DashboardOverview />
                     </div>
                     <div className="basis-1/3">
