@@ -5,6 +5,7 @@ import { Typography } from "@/components/ui/typography";
 import { TrendingUp, TrendingDown, DollarSign, Activity, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
+import { BalanceChart } from "@/components/balance-chart";
 
 interface PortfolioData {
   totalValue: number;
@@ -188,11 +189,11 @@ export function DashboardOverview() {
         </div>
       </div>
 
-      {/* Analytics */}
-      {/* <PortfolioChart accountAddress={address} /> */}
+      {/* Balance Chart */}
+      
 
       {/* Quick Actions */}
-      {/* <Card className="bg-black border-white/10 p-6">
+      <div className="bg-black border border-white/10 rounded-lg p-6">
         <Typography type="h4" className="text-white mb-4">Quick Actions</Typography>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button className="bg-blue-600 hover:bg-blue-700 text-white h-12">
@@ -204,7 +205,7 @@ export function DashboardOverview() {
             Start Trading
           </Button>
         </div>
-      </Card> */}
+      </div>
     </div>
   );
 } 

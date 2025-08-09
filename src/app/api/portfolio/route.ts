@@ -17,9 +17,14 @@ export async function GET(request: Request) {
             network: "base",
         });
 
-        console.log("page", page.balances);
+        if (!page.balances || page.balances.length === 0) {
+            return Response.json({
+                positions: [],
+            });
+        }
+
         const positions = await Promise.all(
-            (page.balances || []).map(async (balance: any) => {
+            page.balances.map(async (balance: any) => {
                 // Access the correct nested structure
                 const symbol = balance.token.symbol;
                 const contractAddress = balance.token.contractAddress;
@@ -42,6 +47,7 @@ export async function GET(request: Request) {
                     try {
                         price = await getPrice(symbol);
                         value = parseFloat(formattedBalance) * price;
+                        console.log(`${symbol}: balance=${formattedBalance}, price=${price}, value=${value}`);
                     } catch (error) {
                         console.error(`Error getting price for ${symbol}:`, error);
                         // Keep price and value as 0 for tokens without liquidity
@@ -49,6 +55,7 @@ export async function GET(request: Request) {
                 } else {
                     price = 1;
                     value = parseFloat(formattedBalance);
+                    console.log(`${symbol}: balance=${formattedBalance}, price=${price}, value=${value}`);
                 }
 
                 return {
@@ -66,10 +73,12 @@ export async function GET(request: Request) {
         );
 
         const validPositions = positions.filter(Boolean);
-        console.log("validPositions", validPositions);
+        console.log("CDP validPositions", validPositions);
+        
         return Response.json({
             positions: validPositions,
         });
+
     } catch (error) {
         console.error('Error fetching portfolio:', error);
         return Response.json({ error: 'Failed to fetch portfolio' }, { status: 500 });

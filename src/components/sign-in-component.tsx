@@ -99,7 +99,6 @@ export function MagicLinkSignIn() {
       const { email } = data;
       setEmail(email);
       
-      // Start sign in flow with CDP hooks
       const result = await signInWithEmail({ email });
       setFlowId(result.flowId);
       

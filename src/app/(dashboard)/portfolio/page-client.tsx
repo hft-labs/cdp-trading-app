@@ -6,7 +6,7 @@ import { WalletControls } from "@/components/wallet-controls";
 import { SwapWidget } from "@/components/swap/swap-widget";
 import { Separator } from "@/components/ui/separator";
 import SidebarLayout from "@/components/sidebar-layout";
-import { TotalValue } from "./total-value";
+import { BalanceChart } from "@/components/balance-chart";
 
 export const PageClient = () => {
     return (
@@ -14,7 +14,7 @@ export const PageClient = () => {
             <SwapProvider>
                 <div className="flex flex-row w-full h-full ">
                     <div className="basis-2/3">
-                        <TotalValue />
+                        <BalanceChart className="mb-6" />
                         <AssetsTable />
                     </div>
                     <div className="basis-1/3 border-l border-white/10">
