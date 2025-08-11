@@ -2,38 +2,27 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { useSwapProvider } from "./swap-provider";
 import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { useCurrentUser, useEvmAddress, useSendEvmTransaction, useSignEvmTypedData } from "@coinbase/cdp-hooks";
 import { getTokenBySymbol } from "@/lib/tokens";
-import { concat, createPublicClient, http, numberToHex, parseAbi, parseUnits, size } from "viem";
-import { base } from "viem/chains";
+import { concat, numberToHex, parseAbi, parseUnits, size } from "viem";
 import { Address } from "viem";
 import { handleTokenAllowance } from "./utils";
 
-
-
-const ERC20_ABI = parseAbi([
-  'function allowance(address owner, address spender) view returns (uint256)',
-  'function approve(address spender, uint256 amount) returns (bool)',
-  'function balanceOf(address owner) view returns (uint256)', // Added for balance checks
-]);
-
 export function SwapButton() {
-  const user = useCurrentUser();
-  const isSignedIn = user !== null;
-  const router = useRouter();
+  const { currentUser } = useCurrentUser();
+  const isSignedIn = currentUser !== null;
   const { fromAmount, fromToken, toToken } = useSwapProvider();
-  const accountAddress = useEvmAddress();
+  const { evmAddress } = useEvmAddress();
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const sendTransaction = useSendEvmTransaction();
+  const { sendEvmTransaction } = useSendEvmTransaction();
   const signTypedData = useSignEvmTypedData();
 
   const handleSwap = async () => {
-    if (!accountAddress) {
+    if (!evmAddress) {
       setErrorMessage("Account not found. Please try refreshing the page.");
       setStatus('error');
       return;
@@ -75,12 +64,12 @@ export function SwapButton() {
         // The spender should be the Permit2 contract address, not the user address
         const permit2Spender = "0x000000000022d473030f116ddee9f6b43ac78ba3" as Address;
         await handleTokenAllowance(
-          accountAddress,
+          evmAddress,
           fromTokenObj.address as Address,
           fromTokenObj.symbol,
           requiredAmount,
           permit2Spender,
-          sendTransaction
+          sendEvmTransaction
         );
       }
 
@@ -94,12 +83,11 @@ export function SwapButton() {
           fromToken: fromToken,
           toToken: toToken,
           fromAmount: amountInSmallestUnits,
-          address: accountAddress
+          address: evmAddress
         })
       });
 
       const swapData = await response.json();
-      console.log('Swap data:', swapData);
 
       if (!response.ok) {
         throw new Error(swapData.error || 'Swap failed');
@@ -110,8 +98,8 @@ export function SwapButton() {
         console.log("Signing Permit2 message...");
 
         // Sign the Permit2 typed data message
-        const signature = await signTypedData({
-          evmAccount: accountAddress,
+        const signature = await signTypedData.signEvmTypedData({
+          evmAccount: evmAddress,
           typedData: {
             domain: swapData.permit2.eip712.domain,
             types: swapData.permit2.eip712.types,
@@ -155,8 +143,8 @@ export function SwapButton() {
 
       console.log('🚀 Executing swap transaction...');
 
-      const txResult = await sendTransaction({
-        evmAccount: accountAddress,
+      const txResult = await sendEvmTransaction({
+        evmAccount: evmAddress,
         transaction: tx,
         network: 'base',
       });

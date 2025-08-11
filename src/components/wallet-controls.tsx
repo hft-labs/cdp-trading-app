@@ -6,25 +6,21 @@ import { useOnramp } from "@/hooks/use-onramp";
 import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 
 export const WalletControls = () => {
-	const address = useEvmAddress();
-	const user = useCurrentUser();
-	
+	const { evmAddress } = useEvmAddress();
+	const { currentUser } = useCurrentUser();
+
 	const { handleOnramp } = useOnramp({
-		address: address as string,
-		partnerUserId: user?.userId as string,
+		address: evmAddress as string,
+		partnerUserId: currentUser?.userId as string,
 	});
 	const { handleOfframp } = useOfframp({
-		address: address as string,
-		partnerUserId: user?.userId as string,
+		address: evmAddress as string,
+		partnerUserId: currentUser?.userId as string,
 	});
-
-	const handleSend = () => { };
-	const handleReceive = () => { };
 
 	return (
 		<div className="flex flex-col gap-1">
 			<button
-				onClick={handleSend}
 				className="flex items-center gap-2 px-3 py-2 rounded transition-colors hover:bg-blue-950/40 focus:outline-none w-full"
 			>
 				<span className="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center">
@@ -33,7 +29,6 @@ export const WalletControls = () => {
 				<span className="text-base text-white">Send crypto</span>
 			</button>
 			<button
-				onClick={handleReceive}
 				className="flex items-center gap-2 px-3 py-2 rounded transition-colors hover:bg-blue-950/40 focus:outline-none w-full"
 			>
 				<span className="bg-blue-500 rounded-full w-8 h-8 flex items-center justify-center">

@@ -18,23 +18,22 @@ export interface PortfolioData {
 }
 
 export const usePortfolio = () => {
-    const address = useEvmAddress();
-    const isInitialized = useIsInitialized();
+    const { evmAddress } = useEvmAddress();
+    const { isInitialized } = useIsInitialized();
     
     const { data, isLoading, isPending, error } = useQuery({
-        queryKey: ['portfolio', address],
+        queryKey: ['portfolio', evmAddress],
         queryFn: async (): Promise<PortfolioData> => {
-            if (!address) {
+            if (!evmAddress) {
                 throw new Error("Address is required");
             }
-            console.log("fetching portfolio", address);
-            const response = await fetch(`/api/portfolio?address=${address}`);
+            const response = await fetch(`/api/portfolio?address=${evmAddress}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch portfolio data");
             }
             return response.json();
-        },
-        enabled: !!address && isInitialized,
+            },
+            enabled: !!evmAddress && isInitialized,
         refetchInterval: 5000, // Refetch every 5 seconds
     });
 

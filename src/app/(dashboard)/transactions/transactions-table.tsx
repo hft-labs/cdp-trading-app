@@ -17,17 +17,17 @@ import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 import { useTransactions, type Transaction } from "@/hooks/use-transactions";
 
 export function TransactionsTable() {
-    const user = useCurrentUser();
-    const address = useEvmAddress();
+    const { currentUser } = useCurrentUser();
+    const { evmAddress } = useEvmAddress();
     
-    const { transactions, isLoading: loading, error } = useTransactions(address);
+    const { transactions, isLoading: loading, error } = useTransactions(evmAddress);
     
     const { handleOnramp } = useOnramp({
-        address: address as string,
-        partnerUserId: user?.userId as string,
+        address: evmAddress as string,
+        partnerUserId: currentUser?.userId as string,
     });
     
-    if (!user) {
+    if (!evmAddress) {
         return null;
     }
 

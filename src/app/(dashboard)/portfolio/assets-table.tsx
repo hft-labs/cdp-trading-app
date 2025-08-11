@@ -16,12 +16,12 @@ import { usePortfolio } from "@/hooks/use-portfolio";
 import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 
 export function AssetsTable() {
-    const address = useEvmAddress();
-    const user = useCurrentUser();
+    const { evmAddress } = useEvmAddress();
+    const { currentUser } = useCurrentUser();
     const { positions, isPending, error } = usePortfolio();
     const { handleOnramp } = useOnramp({
-        address: address as string,
-        partnerUserId: user?.userId as string,
+        address: evmAddress as string,
+        partnerUserId: currentUser?.userId as string,
     });
 
     if (isPending) {
