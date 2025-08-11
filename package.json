@@ -16,9 +16,9 @@
     "migrate:verbose": "bun run src/db/migrate-verbose.ts"
   },
   "dependencies": {
-    "@coinbase/cdp-core": "^0.0.16",
-    "@coinbase/cdp-hooks": "^0.0.16",
-    "@coinbase/cdp-react": "^0.0.18",
+    "@coinbase/cdp-core": "latest",
+    "@coinbase/cdp-hooks": "latest",
+    "@coinbase/cdp-react": "latest",
     "@coinbase/cdp-sdk": "^1.22.0",
     "@hookform/resolvers": "^5.2.1",
     "@neondatabase/serverless": "^1.0.1",

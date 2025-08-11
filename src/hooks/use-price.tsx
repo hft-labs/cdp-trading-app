@@ -1,9 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getTokenBySymbol } from "@/lib/tokens";
-import { parseUnits } from "viem";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
 
-// WHy do we need a taker address for a qoute?
 const defaultTaker = "0xFB122c4a6F14BeB76a590990C049d9952faE7CE1";
 
 export const usePrice = (fromToken: string, toToken: string, amount: string) => {

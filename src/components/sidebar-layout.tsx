@@ -21,8 +21,7 @@ import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Logo } from "./logo";
-import { useCurrentUser, useIsInitialized, useSignOut } from "@coinbase/cdp-hooks";
-import { Button } from "./ui/button";
+import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
 
 type BreadcrumbItem = { item: React.ReactNode, href: string }
 
@@ -61,13 +60,13 @@ const navigationItems: (Label | Item | Hidden)[] = [
         icon: PieChart,
         type: 'item'
     },
-   {
-    name: "Transactions",
-    href: "/transactions",
-    regex: /^\/transactions\/?$/,
-    icon: Receipt,
-    type: 'item'
-   }
+    {
+        name: "Transactions",
+        href: "/transactions",
+        regex: /^\/transactions\/?$/,
+        icon: Receipt,
+        type: 'item'
+    }
 ];
 
 function NavItem({ item, href, onClick, alwaysWhite }: { item: Item, href: string, onClick?: () => void, alwaysWhite?: boolean }) {
@@ -134,7 +133,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                             icon: Book,
                             regex: /^$/,
                         }}
-                        href={"https://docs.stack-auth.com/"}
+                        href={"/"}
                         alwaysWhite={true}
                     />
                 </div>
@@ -144,20 +143,20 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function PageHeader() {
-  const pathname = usePathname();
-  const activeItem = navigationItems.find(
-    (item) => item.type === "item" && item.regex.test(pathname)
-  );
-  if (!activeItem) return null;
-  // Only render if name is a string or valid ReactNode (not a function or array)
-  if (typeof activeItem.name === 'string' || typeof activeItem.name === 'number') {
-    return (
-      <h1 className="text-2xl font-bold text-white">
-        {activeItem.name}
-      </h1>
+    const pathname = usePathname();
+    const activeItem = navigationItems.find(
+        (item) => item.type === "item" && item.regex.test(pathname)
     );
-  }
-  return null;
+    if (!activeItem) return null;
+    // Only render if name is a string or valid ReactNode (not a function or array)
+    if (typeof activeItem.name === 'string' || typeof activeItem.name === 'number') {
+        return (
+            <h1 className="text-2xl font-bold text-white">
+                {activeItem.name}
+            </h1>
+        );
+    }
+    return null;
 }
 
 interface SidebarLayoutProps {
@@ -170,11 +169,6 @@ export default function SidebarLayout({
     showAuth = true,
 }: SidebarLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { resolvedTheme, setTheme } = useTheme();
-    const user = useCurrentUser();
-	const userAuthenticated = user !== null;
-    const isInitialized = useIsInitialized();
-    const signOut = useSignOut();
 
     return (
         <div className="w-full flex">
@@ -207,14 +201,7 @@ export default function SidebarLayout({
                     </div>
 
                     <div className="flex gap-4">
-                    {!userAuthenticated && showAuth && (
-						<Link href="/sign-in">
-							<Button className="bg-white text-black">Sign In</Button>
-						</Link>
-					)}
-                    {userAuthenticated && isInitialized && (
-                        <Button variant="outline" onClick={() => signOut()}>Sign Out</Button>
-                    )}
+                        <AuthButton />
                     </div>
                 </div>
                 <div className="flex-grow relative">

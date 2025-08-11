@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
         });
 
         // Validate input parameters
-        if (!taker || !taker.startsWith('0x') || taker.length !== 42) {
+        const takerAddress = typeof taker === 'string' ? taker : taker?.evmAddress;
+        if (!takerAddress || !takerAddress.startsWith('0x') || takerAddress.length !== 42) {
             return Response.json({ error: 'Invalid taker address' }, { status: 400 });
         }
 
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
             fromToken: fromTokenInfo.address as `0x${string}`,
             toToken: toTokenInfo.address as `0x${string}`,
             fromAmount: fromAmountParsed,
-            taker: taker as `0x${string}`,
+            taker: takerAddress as `0x${string}`,
             network: "base",
         });
 

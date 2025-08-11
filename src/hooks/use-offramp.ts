@@ -1,7 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
-
 const appId = process.env.NEXT_PUBLIC_COINBASE_APP_ID as string;
 const redirectUrl = process.env.NEXT_PUBLIC_APP_URL as string;
 

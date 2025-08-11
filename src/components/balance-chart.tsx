@@ -1,58 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Typography } from "@/components/ui/typography";
 import { Card } from "@/components/ui/card";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
-
-interface BalanceHistoryPoint {
-  date: string;
-  value: number;
-}
+import { useBalanceHistory } from "@/hooks/use-balance-history";
 
 interface BalanceChartProps {
   className?: string;
 }
 
 export function BalanceChart({ className }: BalanceChartProps) {
-  const [chartData, setChartData] = useState<BalanceHistoryPoint[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [totalValue, setTotalValue] = useState(0);
-  const address = useEvmAddress();
-
-  useEffect(() => {
-    const fetchBalanceHistory = async () => {
-      try {
-        const response = await fetch(`/api/balance-history?address=${address}`);
-        
-        if (response.ok) {
-          const result = await response.json();
-          const chartPoints = result.data;
-          
-          if (chartPoints && chartPoints.length > 0) {
-            setChartData(chartPoints);
-            setTotalValue(chartPoints[chartPoints.length - 1]?.value || 0);
-          } else {
-            // No data found for this address (empty array or no data)
-            setChartData([]);
-            setTotalValue(0);
-          }
-        } else {
-          console.error("API error:", response.status, response.statusText);
-          setChartData([]);
-          setTotalValue(0);
-        }
-      } catch (error) {
-        console.error("Error fetching balance history:", error);
-        setChartData([]);
-        setTotalValue(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBalanceHistory();
-  }, [address]);
+ 
+  const { data: chartData = [], isLoading, error } = useBalanceHistory();
+  console.log("chartData", chartData);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -92,7 +52,7 @@ export function BalanceChart({ className }: BalanceChartProps) {
     });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className={`bg-black border-white/10 p-6 ${className}`}>
         <div className="animate-pulse">
@@ -103,18 +63,25 @@ export function BalanceChart({ className }: BalanceChartProps) {
     );
   }
 
-  if (chartData.length === 0) {
+  if (error) {
     return (
       <Card className={`bg-black border-white/10 p-6 ${className}`}>
-        <Typography type="h4" className="text-white mb-2">Portfolio Value</Typography>
-        <Typography type="p" className="text-zinc-400 mb-4">No balance history available</Typography>
-        <div className="h-64 bg-gray-800 rounded flex items-center justify-center">
-          <Typography type="p" className="text-zinc-500 text-center">
-            {address ? 
-              'No historical data found for your wallet. Connect your wallet to see real-time balances.' : 
-              'Connect your wallet to view balance history'
-            }
+        <div className="text-center text-red-500">
+          <Typography type="h4" className="text-white mb-2">Error Loading Chart</Typography>
+          <Typography type="p" className="text-red-400">
+            {error instanceof Error ? error.message : 'Failed to load balance history'}
           </Typography>
+        </div>
+      </Card>
+    );
+  }
+
+  if (!chartData || chartData.length === 0) {
+    return (
+      <Card className={`bg-black border-white/10 p-6 ${className}`}>
+        <div className="text-center text-zinc-400">
+          <Typography type="h4" className="text-white mb-2">Portfolio Value</Typography>
+          <Typography type="p">No balance history available</Typography>
         </div>
       </Card>
     );
