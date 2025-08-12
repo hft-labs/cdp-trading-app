@@ -9,6 +9,7 @@ import { getTokenBySymbol } from "@/lib/tokens";
 import { concat, numberToHex, parseAbi, parseUnits, size } from "viem";
 import { Address } from "viem";
 import { handleTokenAllowance } from "./utils";
+import { useBalance } from "@/hooks/use-balance";
 
 export function SwapButton() {
   const { currentUser } = useCurrentUser();
@@ -20,6 +21,7 @@ export function SwapButton() {
   const [errorMessage, setErrorMessage] = useState('');
   const { sendEvmTransaction } = useSendEvmTransaction();
   const signTypedData = useSignEvmTypedData();
+  const { availableBalance: ethBalance } = useBalance("ETH");
 
   const handleSwap = async () => {
     if (!evmAddress) {
@@ -57,6 +59,7 @@ export function SwapButton() {
       const amountInSmallestUnits = parseUnits(fromAmount, decimals).toString();
 
       console.log('Converted fromAmount:', fromAmount, '->', amountInSmallestUnits, 'with decimals', decimals);
+      console.log('User ETH balance:', ethBalance);
 
 
       if (!fromTokenObj.isNativeAsset) {
@@ -140,6 +143,29 @@ export function SwapButton() {
         maxFeePerGas,
         maxPriorityFeePerGas,
       };
+
+      // Calculate estimated gas cost
+      const estimatedGasCost = tx.gas ? (tx.gas * maxFeePerGas) : BigInt(0);
+      const estimatedGasCostInEth = Number(estimatedGasCost) / 1e18;
+      
+      console.log('Transaction details:', {
+        to: tx.to,
+        value: tx.value.toString(),
+        gas: tx.gas?.toString(),
+        maxFeePerGas: maxFeePerGas.toString(),
+        estimatedGasCost: estimatedGasCost.toString(),
+        estimatedGasCostInEth: estimatedGasCostInEth.toFixed(6)
+      });
+
+      // Check if user has enough ETH for gas
+      if (ethBalance && parseFloat(ethBalance) < estimatedGasCostInEth) {
+        const errorMsg = `Insufficient ETH for gas fees. Required: ${estimatedGasCostInEth.toFixed(6)} ETH, Available: ${ethBalance} ETH`;
+        console.error(errorMsg);
+        setErrorMessage(errorMsg);
+        setStatus('error');
+        setIsLoading(false);
+        return;
+      }
 
       console.log('🚀 Executing swap transaction...');
 

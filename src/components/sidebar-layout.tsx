@@ -10,18 +10,16 @@ import {
 } from "@/components/ui/sheet";
 import { Typography } from "@/components/ui/typography";
 import {
-    Book,
     LucideIcon,
     Menu,
-    Home as HomeIcon,
     PieChart,
     Receipt,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Logo } from "./logo";
 import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
+import { useCurrentUser } from "@coinbase/cdp-hooks";
 
 type BreadcrumbItem = { item: React.ReactNode, href: string }
 
@@ -47,14 +45,7 @@ type Hidden = {
 // what is a good icon
 const navigationItems: (Label | Item | Hidden)[] = [
     {
-        name: "Home",
-        href: "/",
-        regex: /^\/?$/,
-        icon: HomeIcon,
-        type: 'item'
-    },
-    {
-        name: "My assets",
+        name: "Portfolio",
         href: "/portfolio",
         regex: /^\/portfolio\/?$/,
         icon: PieChart,
@@ -123,7 +114,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
                 <div className="flex-grow" />
 
-                <div className="py-2 px-2 flex">
+                {/* <div className="py-2 px-2 flex">
                     <NavItem
                         onClick={onNavigate}
                         item={{
@@ -136,7 +127,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                         href={"/"}
                         alwaysWhite={true}
                     />
-                </div>
+                </div> */}
             </div>
         </div>
     );
@@ -169,17 +160,25 @@ export default function SidebarLayout({
     showAuth = true,
 }: SidebarLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-
+    const { currentUser } = useCurrentUser();
+    const isSignedIn = currentUser !== null;
     return (
         <div className="w-full flex">
-            <div className="flex-col border-r min-w-[240px] h-screen sticky top-0 hidden md:flex backdrop-blur-md bg-white/20 dark:bg-black/20 z-[10]">
+            {isSignedIn && <div className="flex-col border-r min-w-[240px] h-screen sticky top-0 hidden md:flex backdrop-blur-md bg-white/20 dark:bg-black/20 z-[10]">
                 <SidebarContent />
-            </div>
+            </div>}
+            {!isSignedIn && <div className="flex-col min-w-[240px] h-screen sticky top-0 hidden md:flex backdrop-blur-md bg-white/20 dark:bg-black/20 z-[10]">
+                <div className="h-14 border-b flex items-center px-2 shrink-0">
+                    <div className="flex-grow mx-2">
+                        <Logo />
+                    </div>
+                </div>
+            </div>}
             <div className="flex flex-col flex-grow w-0">
                 <div className="h-14 border-b flex items-center justify-between sticky top-0 backdrop-blur-md bg-white/20 dark:bg-black/20 z-10 px-4 md:px-6">
-                    <div className="hidden md:flex items-center h-full">
+                    {isSignedIn && <div className="hidden md:flex items-center h-full">
                         <PageHeader />
-                    </div>
+                    </div>}
 
                     <div className="flex md:hidden items-center">
                         <Sheet onOpenChange={(open) => setSidebarOpen(open)} open={sidebarOpen}>
@@ -201,7 +200,7 @@ export default function SidebarLayout({
                     </div>
 
                     <div className="flex gap-4">
-                        <AuthButton />
+                       {isSignedIn && <AuthButton />}
                     </div>
                 </div>
                 <div className="flex-grow relative">

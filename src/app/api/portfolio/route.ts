@@ -73,7 +73,6 @@ export async function GET(request: Request) {
         );
 
         const validPositions = positions.filter(Boolean);
-        console.log("CDP validPositions", validPositions);
         
         return Response.json({
             positions: validPositions,

@@ -9,7 +9,7 @@ export const useBalance = (symbol: string) => {
         queryKey: ['balance', symbol],
         queryFn: () => fetch(`/api/balance?symbol=${symbol}&address=${evmAddress}`).then(res => res.json()),
         refetchInterval: twoSeconds,
-        enabled: !!evmAddress && evmAddress.length > 1,
+        enabled: !!evmAddress && evmAddress.length > 1 && false,
     });
     const availableBalance = data?.availableBalance;
     return { availableBalance, isLoading, error };

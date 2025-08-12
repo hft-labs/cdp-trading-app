@@ -30,7 +30,7 @@ export function useBalanceHistory() {
   return useQuery({
     queryKey: ['balance-history', evmAddress],
     queryFn: () => fetchBalanceHistory(evmAddress!),
-    enabled: !!evmAddress && isInitialized,
+    enabled: !!evmAddress && isInitialized && false,
     refetchInterval: 10000, // Refetch every 10 seconds
   });
 } 
