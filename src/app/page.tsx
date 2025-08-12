@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
-export default function Dashboard() {
+export default async function Dashboard() {
     redirect("/portfolio");
+    return <div>Home Page</div>;
 }
