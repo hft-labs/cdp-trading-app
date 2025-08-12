@@ -1,7 +1,6 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import PageClient from "./page-client";
-export default function Home() {
-
-  return <PageClient />
+export default async function Dashboard() {
+    redirect("/portfolio");
+    return <div>Home Page</div>;
 }
