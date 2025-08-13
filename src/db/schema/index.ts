@@ -1,4 +1,17 @@
-import { pgTable, text, serial, timestamp, decimal, boolean, integer, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, decimal, boolean, integer, index, jsonb } from "drizzle-orm/pg-core";
+
+export const users = pgTable("users", {
+    id: serial("id").primaryKey(),
+    user_id: text("user_id").notNull().unique(), // CDP user ID
+    authentication_methods: jsonb("authentication_methods").notNull().default([]), // Array of auth methods
+    evm_accounts: jsonb("evm_accounts").notNull().default([]), // Array of EVM addresses
+    evm_smart_accounts: jsonb("evm_smart_accounts").notNull().default([]), // Array of smart account addresses
+    solana_accounts: jsonb("solana_accounts").notNull().default([]), // Array of Solana addresses
+    created_at: timestamp("created_at").defaultNow().notNull(),
+    updated_at: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+    userIdIdx: index("user_id_idx").on(table.user_id),
+}));
 
 export const transactions = pgTable("transactions", {
     id: serial("id").primaryKey(),
@@ -22,7 +35,7 @@ export const transactions = pgTable("transactions", {
 
 export const accounts = pgTable("accounts", {
     id: serial("id").primaryKey(),
-    user_id: text("user_id").notNull(),
+    user_id: text("user_id").notNull().references(() => users.user_id),
     wallet_address: text("wallet_address").notNull(),
     network: text("network").default('base').notNull(),
     is_active: boolean("is_active").default(true),
