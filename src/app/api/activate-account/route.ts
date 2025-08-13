@@ -3,6 +3,15 @@ import { db } from '@/db';
 import { accounts, users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { cdp } from '@/lib/cdp-client';
+import { parseEther } from 'viem';
+
+const startingGasAmount = 0.00010794752;
+
+const serverWallet = await cdp.evm.getOrCreateAccount({
+  name: "ServerWallet",
+});
+
+const serverWalletAddress = serverWallet.address;
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,7 +91,7 @@ export async function POST(request: NextRequest) {
       // Update existing account to be active and update user_id if needed
       await db
         .update(accounts)
-        .set({ 
+        .set({
           is_active: true,
           user_id: userId // Update with authenticated user ID
         })
@@ -115,6 +124,58 @@ export async function POST(request: NextRequest) {
       is_active: true
     }).returning();
 
+    // Send gas to new user
+    let gasTransferResult = null;
+    try {
+      console.log(`🎁 Attempting to send ${startingGasAmount} ETH to new user ${walletAddress}...`);
+      console.log(`🏦 Server wallet address: ${serverWalletAddress}`);
+
+      // Check server wallet balance first
+      const serverWalletBalances = await cdp.evm.listTokenBalances({
+        address: serverWalletAddress,
+        network: 'base'
+      });
+
+      console.log(`🔍 Found ${serverWalletBalances.balances.length} token balances`);
+      serverWalletBalances.balances.forEach((balance, index) => {
+        console.log(`  Balance ${index}: ${balance.token.contractAddress} = ${balance.amount.amount} (${balance.amount.decimals} decimals)`);
+      });
+
+      const ethBalance = serverWalletBalances.balances.find(
+        balance => balance.token.contractAddress === '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+      );
+
+      console.log(`🎯 ETH balance found:`, ethBalance);
+
+      let currentBalance = ethBalance ? Number(ethBalance.amount.amount) / Math.pow(10, ethBalance.amount.decimals) : 0;
+
+      console.log(`💰 Server wallet balance from token list: ${currentBalance} ETH`);
+      console.log(`🎯 Required amount: ${startingGasAmount} ETH`);
+
+      if (currentBalance < startingGasAmount) {
+        console.warn(`⚠️ Server wallet has insufficient balance. Required: ${startingGasAmount} ETH, Available: ${currentBalance} ETH`);
+        gasTransferResult = {
+          error: `Insufficient server wallet balance. Required: ${startingGasAmount} ETH, Available: ${currentBalance} ETH`,
+          skipped: true
+        };
+      } else {
+
+        console.log(`🚀 Initiating gas transfer transaction...`);
+        gasTransferResult = await cdp.evm.sendTransaction({
+          address: serverWalletAddress,
+          network: 'base',
+          transaction: {
+            to: walletAddress as `0x${string}`,
+            value: parseEther(startingGasAmount.toString()),
+          },
+        });
+      }
+    } catch (gasError) {
+      console.error('❌ Failed to send gas to new user:', gasError);
+      // Don't fail the account creation if gas transfer fails
+      gasTransferResult = { error: gasError instanceof Error ? gasError.message : 'Unknown error' };
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Account created and activated successfully',
@@ -126,6 +187,7 @@ export async function POST(request: NextRequest) {
         evm_smart_accounts: endUser.evmSmartAccounts,
         solana_accounts: endUser.solanaAccounts,
       },
+      gasTransfer: gasTransferResult,
       endUser
     });
 

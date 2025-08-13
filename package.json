@@ -13,7 +13,8 @@
     "test:integration": "jest --testPathPattern=integration",
     "migrate": "bunx drizzle-kit generate --dialect postgresql --schema ./src/app/db/schema/index.ts --out ./src/app/db/migrations",
     "migrate:apply": "bun run src/db/migrate.ts",
-    "migrate:verbose": "bun run src/db/migrate-verbose.ts"
+    "migrate:verbose": "bun run src/db/migrate-verbose.ts",
+    "setup-wallet": "bun run scripts/setup-server-wallet.ts"
   },
   "dependencies": {
     "@coinbase/cdp-core": "latest",

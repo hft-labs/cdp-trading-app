@@ -8,8 +8,6 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { fromToken, toToken, fromAmount, taker } = body;
 
-        console.log('Price API request:', { fromToken, toToken, fromAmount, taker });
-
         let fromTokenInfo = getTokenBySymbol(fromToken);
         let toTokenInfo = getTokenBySymbol(toToken);
 
@@ -34,11 +32,6 @@ export async function POST(request: NextRequest) {
             toTokenInfo = wethToken;
         }
 
-        console.log('Token info:', { 
-            from: { symbol: fromTokenInfo.symbol, address: fromTokenInfo.address, decimals: fromTokenInfo.decimals },
-            to: { symbol: toTokenInfo.symbol, address: toTokenInfo.address, decimals: toTokenInfo.decimals }
-        });
-
         // Validate input parameters
         const takerAddress = typeof taker === 'string' ? taker : taker?.evmAddress;
         if (!takerAddress || !takerAddress.startsWith('0x') || takerAddress.length !== 42) {
@@ -50,7 +43,6 @@ export async function POST(request: NextRequest) {
         }
 
         const fromAmountParsed = parseUnits(fromAmount, fromTokenInfo.decimals);
-        console.log('Parsed amount:', { fromAmount, decimals: fromTokenInfo.decimals, parsed: fromAmountParsed.toString() });
 
         const swapPrice = await cdp.evm.getSwapPrice({
             fromToken: fromTokenInfo.address as `0x${string}`,

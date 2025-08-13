@@ -1,13 +1,14 @@
 'use client'
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { useEvmAddress, useIsInitialized, useGetAccessToken, useIsSignedIn } from "@coinbase/cdp-hooks";
 import { usePortfolio } from "@/hooks/use-portfolio";
 import { useTransactions } from "@/hooks/use-transactions";
 import { useBalance } from "@/hooks/use-balance";
 import { Typography } from "@/components/ui/typography";
+import { Wallet, DollarSign, ArrowUpRight, CheckCircle, Clock, XCircle, Activity, TrendingUp, TrendingDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, DollarSign, Activity, ArrowUpRight, Wallet, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { redirect } from "next/navigation";
 
 export default function Dashboard() {
     const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,7 @@ export default function Dashboard() {
     const { portfolio, positions, isPending: portfolioLoading, error: portfolioError } = usePortfolio();
     const { transactions, isLoading: transactionsLoading, error: transactionsError } = useTransactions(evmAddress);
     const { availableBalance: ethBalance, isLoading: balanceLoading } = useBalance('ETH');
+    redirect("/portfolio"); 
 
     const testActivateAccount = async () => {
         setIsLoading(true);
@@ -77,6 +79,7 @@ export default function Dashboard() {
             setIsLoading(false);
         }
     };
+    //redirect("/portfolio"); 
 
     // Calculate total portfolio value
     const totalValue = positions.reduce((acc, position) => acc + position.value, 0);
@@ -117,7 +120,7 @@ export default function Dashboard() {
                 </Typography>
                 <div className="flex items-center gap-2 text-sm text-zinc-400">
                     <Wallet className="h-4 w-4" />
-                    {evmAddress.slice(0, 6)}...{evmAddress.slice(-4)}
+                    {evmAddress ? `${evmAddress?.slice(0, 6)}...${evmAddress?.slice(-4)}` : 'Not connected'}
                 </div>
             </div>
             
@@ -188,7 +191,7 @@ export default function Dashboard() {
                     </div>
                 ) : portfolioError ? (
                     <Typography type="p" className="text-red-400">
-                        Error loading portfolio: {portfolioError.message}
+                        Error loading portfolio: {portfolioError?.message || 'Unknown error'}
                     </Typography>
                 ) : positions.length === 0 ? (
                     <Typography type="p" className="text-zinc-400">
@@ -250,7 +253,7 @@ export default function Dashboard() {
                     </div>
                 ) : transactionsError ? (
                     <Typography type="p" className="text-red-400">
-                        Error loading transactions: {transactionsError.message}
+                        Error loading transactions: {transactionsError?.message || 'Unknown error'}
                     </Typography>
                 ) : transactions.length === 0 ? (
                     <Typography type="p" className="text-zinc-400">
