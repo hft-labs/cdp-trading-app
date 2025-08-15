@@ -9,7 +9,7 @@ export default function ClientApp({ children }: { children: React.ReactNode }) {
   const { isInitialized } = useIsInitialized();
   const { isSignedIn } = useIsSignedIn();
   return (
-    <div className="app flex-col-container flex-grow">
+    <div className="app h-full flex-grow">
       {!isInitialized && <Loading />}
       {isInitialized && (
         <>

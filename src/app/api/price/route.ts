@@ -8,6 +8,9 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { fromToken, toToken, fromAmount, taker } = body;
 
+        // Log the request for debugging
+        console.log('Price API request:', { fromToken, toToken, fromAmount, taker });
+
         let fromTokenInfo = getTokenBySymbol(fromToken);
         let toTokenInfo = getTokenBySymbol(toToken);
 
@@ -34,12 +37,17 @@ export async function POST(request: NextRequest) {
 
         // Validate input parameters
         const takerAddress = typeof taker === 'string' ? taker : taker?.evmAddress;
-        if (!takerAddress || !takerAddress.startsWith('0x') || takerAddress.length !== 42) {
-            return Response.json({ error: 'Invalid taker address' }, { status: 400 });
+        if (!takerAddress || takerAddress === null || !takerAddress.startsWith('0x') || takerAddress.length !== 42) {
+            return Response.json({ error: 'Invalid taker address - address is required' }, { status: 400 });
         }
 
-        if (!fromAmount || isNaN(Number(fromAmount)) || Number(fromAmount) <= 0) {
-            return Response.json({ error: 'Invalid fromAmount' }, { status: 400 });
+        if (!fromAmount || fromAmount === "" || isNaN(Number(fromAmount)) || Number(fromAmount) <= 0) {
+            return Response.json({ error: 'Invalid fromAmount - must be a positive number' }, { status: 400 });
+        }
+
+        // Validate token symbols
+        if (!fromToken || !toToken) {
+            return Response.json({ error: 'Token symbols are required' }, { status: 400 });
         }
 
         const fromAmountParsed = parseUnits(fromAmount, fromTokenInfo.decimals);

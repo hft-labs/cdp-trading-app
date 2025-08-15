@@ -16,11 +16,11 @@ export default function PortfolioPage() {
         <ClientApp>
             <SwapProvider>
                 <div className="flex flex-row w-full h-full ">
-                    <div className="basis-2/3">
-                        <BalanceChart className="mb-6" />
+                    <div className="basis-2/3 h-full">
+                        <BalanceChart />
                         <AssetsTable />
                     </div>
-                    <div className="basis-1/3 border-l border-white/10">
+                    <div className="basis-1/3 border-l border-white/10 h-full">
                         <SwapWidget />
                         <Separator className="my-4" />
                         <WalletControls />

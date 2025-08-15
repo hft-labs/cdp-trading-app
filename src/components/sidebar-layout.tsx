@@ -157,7 +157,6 @@ interface SidebarLayoutProps {
 
 export default function SidebarLayout({
     children,
-    showAuth = true,
 }: SidebarLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { currentUser } = useCurrentUser();

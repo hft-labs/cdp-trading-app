@@ -5,7 +5,6 @@ import { Typography } from "@/components/ui/typography";
 import { TrendingUp, TrendingDown, DollarSign, Activity, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEvmAddress } from "@coinbase/cdp-hooks";
-import { BalanceChart } from "@/components/balance-chart";
 
 interface PortfolioData {
   totalValue: number;

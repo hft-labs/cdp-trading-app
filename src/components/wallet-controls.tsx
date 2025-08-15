@@ -19,7 +19,7 @@ export const WalletControls = () => {
 	});
 
 	return (
-		<div className="flex flex-col gap-1">
+		<div className="flex flex-col gap-1 h-full bg-black">
 			<button
 				className="flex items-center gap-2 px-3 py-2 rounded transition-colors hover:bg-blue-950/40 focus:outline-none w-full"
 			>
