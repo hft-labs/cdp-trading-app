@@ -47,6 +47,12 @@ export function SQLTransactionsTable() {
     };
 
     const getTransactionDescription = (tx: SQLTransaction) => {
+        // If we have swap details, use them for a more accurate description
+        if (tx.type === 'swap' && tx.swapDetails?.description) {
+            console.log('Using swap details description:', tx.swapDetails.description);
+            return tx.swapDetails.description;
+        }
+        
         let value = 0;
         let decimals = 18; // Default for ETH
         

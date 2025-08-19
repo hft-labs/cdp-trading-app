@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { runSQLQuery } from "@/lib/sql-api";
 
 export interface SQLTransaction {
     hash: string;
@@ -16,43 +15,92 @@ export interface SQLTransaction {
     contractAddress?: string;
     tokenSymbol?: string;
     tokenDecimals?: number;
+    swapDetails?: {
+        inputToken: string;
+        outputToken: string;
+        inputAmount: string;
+        outputAmount: string;
+        inputSymbol?: string;
+        outputSymbol?: string;
+        inputDecimals?: number;
+        outputDecimals?: number;
+        description?: string;
+    };
 }
 
 export interface SQLTransactionsData {
     transactions: SQLTransaction[];
 }
 
-// Fallback function to get transactions from the existing API
-async function getFallbackTransactions(address: string, limit: number): Promise<SQLTransactionsData> {
+// Function to fetch transactions from the parsed API
+async function getParsedTransactions(address: string, limit: number): Promise<SQLTransactionsData> {
     try {
-        const response = await fetch(`/api/transactions?address=${address}&network=base&limit=${limit}`);
+        const response = await fetch(`/api/transactions-parsed?address=${address}&network=base&limit=${limit}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         
-        // Transform the existing transaction format to match our interface
-        const transactions: SQLTransaction[] = data.transactions.map((tx: any) => ({
-            hash: tx.hash,
-            timestamp: tx.timestamp,
-            type: tx.type,
-            from: tx.from,
-            to: tx.to,
-            value: tx.value,
-            asset: tx.asset,
-            status: tx.status,
-            blockNumber: tx.blockNumber || '0',
-            gasUsed: tx.gasUsed || '0',
-            network: tx.network,
-            contractAddress: tx.contractAddress,
-            tokenSymbol: tx.tokenSymbol,
-            tokenDecimals: tx.tokenDecimals,
-        }));
-        
+        // Transform the parsed transaction data to match our interface
+        const transactions: SQLTransaction[] = data.transactions.map((tx: any) => {
+            // Handle different transaction formats from the parsed API
+            if (tx.error || tx.type === 'error') {
+                // Skip transactions that failed to parse
+                return null;
+            }
+
+            // Extract basic transaction info
+            const hash = tx.transactionHash || tx.hash;
+            const timestamp = tx.blockTimestamp || new Date().toISOString();
+            
+            // Determine transaction type based on parsed data
+            let type: 'swap' | 'transfer' | 'deposit' | 'withdrawal' = 'transfer';
+            if (tx.type === 'swap' || tx.swap) {
+                type = 'swap';
+            } else if (tx.type === 'transfer') {
+                type = 'transfer';
+            }
+
+            // Extract swap details if available
+            let swapDetails = undefined;
+            if (type === 'swap' && tx.swap) {
+                swapDetails = {
+                    inputToken: tx.swap.inputToken || '',
+                    outputToken: tx.swap.outputToken || '',
+                    inputAmount: tx.swap.inputAmount || '0',
+                    outputAmount: tx.swap.outputAmount || '0',
+                    inputSymbol: tx.swap.inputSymbol,
+                    outputSymbol: tx.swap.outputSymbol,
+                    inputDecimals: tx.swap.inputDecimals,
+                    outputDecimals: tx.swap.outputDecimals,
+                    description: `Swap ${tx.swap.inputAmount || '0'} ${tx.swap.inputSymbol || 'tokens'} for ${tx.swap.outputAmount || '0'} ${tx.swap.outputSymbol || 'tokens'}`
+                };
+            }
+
+            return {
+                hash,
+                timestamp,
+                type,
+                from: tx.from || '',
+                to: tx.to || '',
+                value: tx.value || '0',
+                asset: tx.asset || 'ETH',
+                status: 'confirmed' as const,
+                blockNumber: tx.blockNumber || '0',
+                gasUsed: tx.gasUsed || '0',
+                network: 'base',
+                contractAddress: tx.contractAddress,
+                tokenSymbol: tx.tokenSymbol,
+                tokenDecimals: tx.tokenDecimals,
+                swapDetails,
+            };
+        }).filter(Boolean); // Remove null entries
+
+        console.log(`Successfully parsed ${transactions.length} out of ${data.total} transactions (${data.failed} failed)`);
         return { transactions };
     } catch (error) {
-        console.error('Fallback API Error:', error);
-        return { transactions: [] };
+        console.error('Parsed API Error:', error);
+        throw error;
     }
 }
 
@@ -64,61 +112,8 @@ export const useSQLTransactions = (address: string | null, limit: number = 50) =
                 throw new Error("Address is required");
             }
 
-            // Try SQL API first
-            try {
-                // Enhanced query with timestamps and address filtering
-                const sqlQuery = `
-                    SELECT 
-                        t.transaction_hash,
-                        t.block_number,
-                        t.from_address,
-                        t.to_address,
-                        t.value,
-                        b.timestamp
-                    FROM base.transactions t
-                    JOIN base.blocks b ON t.block_number = b.block_number
-                    WHERE t.from_address = '${address.toLowerCase()}' OR t.to_address = '${address.toLowerCase()}'
-                    ORDER BY b.timestamp DESC
-                    LIMIT ${limit}
-                `;
-
-                const response = await runSQLQuery(sqlQuery);
-
-                // Transform the response to match our interface
-                const transactions: SQLTransaction[] = response.result.map((row: any) => {
-                    // Determine transaction type based on address involvement
-                    let type: 'deposit' | 'withdrawal' | 'transfer' = 'transfer';
-                    if (row.from_address === address.toLowerCase()) {
-                        type = 'withdrawal';
-                    } else if (row.to_address === address.toLowerCase()) {
-                        type = 'deposit';
-                    }
-
-                    return {
-                        hash: row.transaction_hash,
-                        timestamp: row.timestamp || new Date().toISOString(),
-                        type,
-                        from: row.from_address,
-                        to: row.to_address,
-                        value: row.value || '0',
-                        asset: 'ETH',
-                        status: 'confirmed' as const,
-                        blockNumber: row.block_number,
-                        gasUsed: '0', // Default value
-                        network: 'base',
-                        contractAddress: undefined,
-                        tokenSymbol: undefined,
-                        tokenDecimals: undefined,
-                    };
-                });
-
-                return { transactions };
-            } catch (sqlError) {
-                console.warn('SQL API failed, using fallback:', sqlError);
-                
-                // Fallback to existing transaction API
-                return await getFallbackTransactions(address, limit);
-            }
+            console.log('Fetching transactions from parsed API...');
+            return await getParsedTransactions(address, limit);
         },
         enabled: !!address,
         refetchInterval: 30000, // Refetch every 30 seconds

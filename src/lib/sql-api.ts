@@ -1,34 +1,37 @@
-interface SQLQueryResponse {
-    result: any[];
-    schema: {
-        columns: Array<{
-            name: string;
-            type: string;
-        }>;
-    };
-    metadata: {
-        cached: boolean;
-        executionTimeMs: number;
-        rowCount: number;
-    };
-}
+import { generateJwt } from '@coinbase/cdp-sdk/auth';
 
-interface SQLQueryRequest {
-    sql: string;
-}
+export async function runSQLQueryServer(sql: string) {
+    const apiKeyId = process.env.CDP_API_KEY_ID;
+    const apiKeySecret = process.env.CDP_API_KEY_SECRET;
 
-export async function runSQLQuery(sql: string): Promise<SQLQueryResponse> {
-    const response = await fetch('/api/sql-query', {
+    if (!apiKeyId || !apiKeySecret) {
+        throw new Error('CDP API credentials not configured');
+    }
+
+    const jwt = await generateJwt({
+        apiKeyId: apiKeyId,
+        apiKeySecret: apiKeySecret,
+        requestMethod: 'POST',
+        requestHost: 'api.cdp.coinbase.com',
+        requestPath: '/platform/v2/data/query/run',
+        expiresIn: 120
+    });
+
+    const url = 'https://api.cdp.coinbase.com/platform/v2/data/query/run';
+
+    const response = await fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwt}`,
         },
-        body: JSON.stringify({ sql } as SQLQueryRequest),
+        body: JSON.stringify({ sql }),
     });
 
     if (!response.ok) {
-        throw new Error(`SQL API Error: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`CDP API Error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     return response.json();
-} 
+}

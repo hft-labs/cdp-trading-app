@@ -117,6 +117,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 # RPC Endpoints
 PAYMASTER_URL=your_base_rpc_url
+
+# Redis Cache (Optional - for transaction caching)
+UPSTASH_REDIS_REST_URL=your_upstash_redis_url
+UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
 ```
 
 ### 3. Database Setup
@@ -172,6 +176,26 @@ src/
 ### Authentication
 - `POST /api/session` - Generate session tokens
 - `GET /api/session` - Validate sessions
+
+### Transaction History
+- `GET /api/transactions-parsed?address=0x...&limit=100` - Get parsed transaction history (individual transactions cached)
+
+## ⚡ Performance Optimizations
+
+### Redis Caching
+The transaction parsing API includes intelligent Redis caching to improve performance:
+
+- **Transaction-Level Caching**: Individual parsed transactions are cached for 1 hour
+- **Graceful Degradation**: API works without Redis (caching disabled)
+
+**Cache Keys**:
+- `tx:{transactionHash}` - Individual transaction data
+
+**Setup**: Add Upstash Redis environment variables to enable caching:
+```env
+UPSTASH_REDIS_REST_URL=your_upstash_redis_url
+UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
+```
 
 ## 🎨 UI/UX Features
 
