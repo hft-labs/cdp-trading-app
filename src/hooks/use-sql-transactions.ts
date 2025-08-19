@@ -51,11 +51,14 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
 
             // Extract basic transaction info
             const hash = tx.transactionHash || tx.hash;
-            const timestamp = tx.blockTimestamp || new Date().toISOString();
+            // Convert block timestamp (seconds since epoch) to ISO string
+            const timestamp = tx.blockTimestamp ? 
+                new Date(parseInt(tx.blockTimestamp) * 1000).toISOString() : 
+                new Date().toISOString();
             
             // Determine transaction type based on parsed data
             let type: 'swap' | 'transfer' | 'deposit' | 'withdrawal' = 'transfer';
-            if (tx.type === 'swap' || tx.swap) {
+            if (tx.type === 'swap' || tx.swap || tx.tokenIn) {
                 type = 'swap';
             } else if (tx.type === 'transfer') {
                 type = 'transfer';
@@ -63,18 +66,35 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
 
             // Extract swap details if available
             let swapDetails = undefined;
-            if (type === 'swap' && tx.swap) {
-                swapDetails = {
-                    inputToken: tx.swap.inputToken || '',
-                    outputToken: tx.swap.outputToken || '',
-                    inputAmount: tx.swap.inputAmount || '0',
-                    outputAmount: tx.swap.outputAmount || '0',
-                    inputSymbol: tx.swap.inputSymbol,
-                    outputSymbol: tx.swap.outputSymbol,
-                    inputDecimals: tx.swap.inputDecimals,
-                    outputDecimals: tx.swap.outputDecimals,
-                    description: `Swap ${tx.swap.inputAmount || '0'} ${tx.swap.inputSymbol || 'tokens'} for ${tx.swap.outputAmount || '0'} ${tx.swap.outputSymbol || 'tokens'}`
-                };
+            if (type === 'swap' && (tx.swap || tx.tokenIn)) {
+                // Handle both old format (tx.swap) and new format (tx.tokenIn/tokenOut)
+                if (tx.tokenIn && tx.tokenOut) {
+                    // New format from 0x parser
+                    swapDetails = {
+                        inputToken: tx.tokenIn.address || '',
+                        outputToken: tx.tokenOut.address || '',
+                        inputAmount: tx.tokenIn.amount || '0',
+                        outputAmount: tx.tokenOut.amount || '0',
+                        inputSymbol: tx.tokenIn.symbol,
+                        outputSymbol: tx.tokenOut.symbol,
+                        inputDecimals: undefined,
+                        outputDecimals: undefined,
+                        description: `Swap ${tx.tokenIn.amount || '0'} ${tx.tokenIn.symbol || 'tokens'} for ${tx.tokenOut.amount || '0'} ${tx.tokenOut.symbol || 'tokens'}`
+                    };
+                } else if (tx.swap) {
+                    // Old format
+                    swapDetails = {
+                        inputToken: tx.swap.inputToken || '',
+                        outputToken: tx.swap.outputToken || '',
+                        inputAmount: tx.swap.inputAmount || '0',
+                        outputAmount: tx.swap.outputAmount || '0',
+                        inputSymbol: tx.swap.inputSymbol,
+                        outputSymbol: tx.swap.outputSymbol,
+                        inputDecimals: tx.swap.inputDecimals,
+                        outputDecimals: tx.swap.outputDecimals,
+                        description: `Swap ${tx.swap.inputAmount || '0'} ${tx.swap.inputSymbol || 'tokens'} for ${tx.swap.outputAmount || '0'} ${tx.swap.outputSymbol || 'tokens'}`
+                    };
+                }
             }
 
             return {
@@ -97,6 +117,16 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
         }).filter(Boolean); // Remove null entries
 
         console.log(`Successfully parsed ${transactions.length} out of ${data.total} transactions (${data.failed} failed)`);
+        
+        // Debug timestamps
+        transactions.forEach((tx, index) => {
+            console.log(`Transaction ${index + 1} timestamp:`, {
+                original: tx.timestamp,
+                date: new Date(tx.timestamp),
+                formatted: new Date(tx.timestamp).toLocaleString()
+            });
+        });
+        
         return { transactions };
     } catch (error) {
         console.error('Parsed API Error:', error);

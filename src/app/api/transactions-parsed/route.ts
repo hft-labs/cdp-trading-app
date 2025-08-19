@@ -83,15 +83,30 @@ export async function GET(request: Request) {
                     };
                 }
                 
+                // Get transaction receipt to get block number and timestamp
+                const receipt = await publicClient.getTransactionReceipt({
+                    hash: transactionHash as `0x${string}`
+                });
+                
+                // Get block information to get timestamp
+                const block = await publicClient.getBlock({
+                    blockNumber: receipt.blockNumber
+                });
+                
                 if (redis) {
                     const txCacheKey = `tx:${transactionHash}`;
                     await redis.setex(txCacheKey, 3600, data);
                 }
                 
+                // The 0x parser returns parsed swap data
+                // We need to ensure our type field overrides any existing type field
                 return {
                     ...data,
                     transactionHash: transactionHash,
-                    type: 'parsed'
+                    blockNumber: receipt.blockNumber.toString(),
+                    gasUsed: receipt.gasUsed.toString(),
+                    blockTimestamp: block.timestamp.toString(),
+                    type: 'swap' // All successful parses from 0x parser are swaps
                 };
             } catch (error) {
                 console.error(`Error parsing transaction ${transactionHash}:`, error);
@@ -105,7 +120,7 @@ export async function GET(request: Request) {
     );
 
     // Count successful and failed transactions
-    const successfulTransactions = parsedTransactions.filter(tx => tx.type === 'parsed');
+    const successfulTransactions = parsedTransactions.filter(tx => tx.type === 'swap');
     const failedTransactions = parsedTransactions.filter(tx => tx.type === 'error');
 
     const result = {

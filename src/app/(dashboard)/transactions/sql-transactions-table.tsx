@@ -68,8 +68,6 @@ export function SQLTransactionsTable() {
             tx.asset;
         
         switch (tx.type) {
-            case 'swap':
-                return `Swapped ${formattedValue} ${assetName}`;
             case 'deposit':
                 return `Deposited ${formattedValue} ${assetName}`;
             case 'withdrawal':
