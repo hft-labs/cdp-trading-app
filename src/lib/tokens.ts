@@ -158,7 +158,7 @@ export { baseTokens };
 // Common token addresses on Base network
 export const TOKEN_ADDRESSES: Record<string, { symbol: string; decimals: number; name: string }> = {
     // USDC on Base
-    '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913': {
+    '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913': {
         symbol: 'USDC',
         decimals: 6,
         name: 'USD Coin'
@@ -170,55 +170,55 @@ export const TOKEN_ADDRESSES: Record<string, { symbol: string; decimals: number;
         name: 'Wrapped Ether'
     },
     // DEGEN on Base
-    '0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed': {
+    '0x4ed4e862860bed51a9570b96d89af5e1b0efefed': {
         symbol: 'DEGEN',
         decimals: 18,
         name: 'Degen'
     },
     // AERO on Base
-    '0x940181a94A35A4569E4529A3CDfB74e38FD98631': {
+    '0x940181a94a35a4569e4529a3cdfb74e38fd98631': {
         symbol: 'AERO',
         decimals: 18,
         name: 'Aerodrome'
     },
     // BAL on Base
-    '0x4158734D47Fc9692176B5085E0F52ee0Da5d47F1': {
+    '0x4158734d47fc9692176b5085e0f52ee0da5d47f1': {
         symbol: 'BAL',
         decimals: 18,
         name: 'Balancer'
     },
     // CRV on Base
-    '0x7F5373AE26c3E1324dA5F9F2CAC9846050fC90f9': {
+    '0x7f5373ae26c3e1324da5f9f2cac9846050fc90f9': {
         symbol: 'CRV',
         decimals: 18,
         name: 'Curve DAO Token'
     },
     // SNX on Base
-    '0x22e6966B799c4D5B13BE962E1D117b56327FDa66': {
+    '0x22e6966b799c4d5b13be962e1d117b56327fda66': {
         symbol: 'SNX',
         decimals: 18,
         name: 'Synthetix Network Token'
     },
     // UNI on Base
-    '0x6fd9d7AD17242c41f7131d257212c54A0e816691': {
+    '0x6fd9d7ad17242c41f7131d257212c54a0e816691': {
         symbol: 'UNI',
         decimals: 18,
         name: 'Uniswap'
     },
     // LINK on Base
-    '0x88DfaAABaf06f3a25D4a0AE4b3bF4C8C76249B0b': {
+    '0x88dfaaabaf06f3a25d4a0ae4b3bf4c8c76249b0b': {
         symbol: 'LINK',
         decimals: 18,
         name: 'Chainlink'
     },
     // AAVE on Base
-    '0x2AE3F1Ec7F1F5012CFEab0185bfc7aa3cf0DEc22': {
+    '0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22': {
         symbol: 'AAVE',
         decimals: 18,
         name: 'Aave'
     },
     // COMP on Base
-    '0x9e1028F5F1D5eDE59748FFcE553474997D6ECA76': {
+    '0x9e1028f5f1d5ede59748ffce553474997d6eca76': {
         symbol: 'COMP',
         decimals: 18,
         name: 'Compound'
@@ -232,7 +232,11 @@ export const TOKEN_ADDRESSES: Record<string, { symbol: string; decimals: number;
  */
 export function getTokenInfo(contractAddress: string): { symbol: string; decimals: number; name: string } | null {
     const normalizedAddress = contractAddress.toLowerCase();
-    return TOKEN_ADDRESSES[normalizedAddress] || null;
+    console.log(`Looking up token: ${contractAddress} -> ${normalizedAddress}`);
+    console.log(`Available tokens:`, Object.keys(TOKEN_ADDRESSES));
+    const result = TOKEN_ADDRESSES[normalizedAddress];
+    console.log(`Result:`, result);
+    return result || null;
 }
 
 /**
@@ -311,6 +315,35 @@ export function parseERC20Transfer(input: string): { from: string; to: string; a
         return null;
     } catch (error) {
         console.error('Error parsing ERC20 transfer:', error);
+        return null;
+    }
+}
+
+/**
+ * Parse ERC20 approval input data
+ */
+export function parseERC20Approval(input: string): { spender: string; amount: string } | null {
+    if (!input || input.length < 74) {
+        return null;
+    }
+    
+    try {
+        // Handle approve (0x095ea7b3)
+        if (input.startsWith('0x095ea7b3') && input.length >= 74) {
+            // Extract spender address (32 bytes starting at position 4)
+            const spenderHex = input.slice(4, 68);
+            const spender = '0x' + spenderHex.slice(24); // Remove padding
+            
+            // Extract amount (32 bytes starting at position 68)
+            const amountHex = input.slice(68);
+            const amount = BigInt('0x' + amountHex).toString();
+            
+            return { spender, amount };
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('Error parsing ERC20 approval:', error);
         return null;
     }
 }

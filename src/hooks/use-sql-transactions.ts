@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 export interface SQLTransaction {
     hash: string;
     timestamp: string;
-    type: 'swap' | 'transfer' | 'deposit' | 'withdrawal';
+    type: 'swap' | 'transfer' | 'deposit' | 'withdrawal' | 'erc20_approval';
     from: string;
     to: string;
     value: string;
@@ -58,11 +58,13 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
                 new Date().toISOString();
             
             // Determine transaction type based on parsed data
-            let type: 'swap' | 'transfer' | 'deposit' | 'withdrawal' = 'transfer';
+            let type: 'swap' | 'transfer' | 'deposit' | 'withdrawal' | 'erc20_approval' = 'transfer';
             if (tx.type === 'swap' || tx.swap || tx.tokenIn) {
                 type = 'swap';
             } else if (tx.type === 'transfer') {
                 type = 'transfer';
+            } else if (tx.type === 'erc20_approval') {
+                type = 'erc20_approval';
             }
 
             // Extract swap details if available

@@ -4,7 +4,7 @@ import { createPublicClient, http } from "viem";
 import { base } from "viem/chains";
 import { Redis } from '@upstash/redis';
 import { runSQLQueryServer } from "@/lib/sql-api";
-import { parseERC20Transfer, getTokenInfo, formatTokenAmount } from "@/lib/tokens";  
+import { parseERC20Transfer, parseERC20Approval, getTokenInfo, formatTokenAmount } from "@/lib/tokens";  
 
 const redis = Redis.fromEnv();
 const publicClient = createPublicClient({
@@ -26,12 +26,12 @@ export async function GET(request: Request) {
             details: 'Please provide an address to fetch transactions'
         }, { status: 400 });
     }
-
+    const startBlock = 30000000;
     const fromAddressQuery = `
         SELECT transaction_hash, block_number
         FROM base.transactions 
         WHERE from_address = '${address.toLowerCase()}'
-            AND block_number > 34441890
+            AND block_number > ${startBlock}
         ORDER BY block_number DESC
         LIMIT ${limit}
     `;
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
         SELECT transaction_hash, block_number
         FROM base.transactions 
         WHERE to_address = '${address.toLowerCase()}'
-            AND block_number > 34441890
+            AND block_number > ${startBlock}
         ORDER BY block_number DESC
         LIMIT ${limit}
     `;
@@ -174,7 +174,7 @@ export async function GET(request: Request) {
                         gasUsed: receipt.gasUsed.toString(),
                         blockTimestamp: block.timestamp.toString(),
                         type: 'erc20_transfer',
-                        asset: 'TOKEN',
+                        asset: tokenInfo?.symbol || 'TOKEN',
                         tokenAddress: tx.to!,
                         tokenSymbol: tokenInfo?.symbol || 'TOKEN',
                         tokenName: tokenInfo?.name || 'Unknown Token',
@@ -184,6 +184,33 @@ export async function GET(request: Request) {
                         formattedAmount: formattedAmount,
                         direction: isIncoming ? 'in' : 'out',
                         description: isIncoming ? `Received ${formattedAmount} ${tokenInfo?.symbol || 'TOKEN'}` : `Sent ${formattedAmount} ${tokenInfo?.symbol || 'TOKEN'}`
+                    };
+                }
+                
+                // Try to parse as ERC20 approval
+                const erc20Approval = parseERC20Approval(tx.input);
+                if (erc20Approval) {
+                    console.log(`ERC20 Approval - Contract Address: ${tx.to!}`);
+                    const tokenInfo = getTokenInfo(tx.to!);
+                    console.log(`Token Info:`, tokenInfo);
+                    const formattedAmount = formatTokenAmount(erc20Approval.amount, tokenInfo?.decimals || 18);
+                    
+                    return {
+                        transactionHash: transactionHash,
+                        blockNumber: receipt.blockNumber.toString(),
+                        gasUsed: receipt.gasUsed.toString(),
+                        blockTimestamp: block.timestamp.toString(),
+                        type: 'erc20_approval',
+                        asset: tokenInfo?.symbol || 'TOKEN',
+                        tokenAddress: tx.to!,
+                        tokenSymbol: tokenInfo?.symbol || 'TOKEN',
+                        tokenName: tokenInfo?.name || 'Unknown Token',
+                        from: tx.from,
+                        to: erc20Approval.spender,
+                        amount: erc20Approval.amount,
+                        formattedAmount: formattedAmount,
+                        direction: 'out',
+                        description: `Approved ${erc20Approval.spender.slice(0, 6)}...${erc20Approval.spender.slice(-4)} to spend ${tokenInfo?.symbol || 'TOKEN'}`
                     };
                 }
                 
