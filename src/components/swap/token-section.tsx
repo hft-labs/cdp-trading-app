@@ -2,7 +2,6 @@
 import { Input } from "@/components/ui/input"
 import { useSwapProvider } from "./swap-provider"
 import { usePrice } from "../../hooks/use-price"
-import { MaxButton } from "./max-button"
 import { TokenMenu } from "./token-menu"
 import { useBalance } from "@/hooks/use-balance"
 import { cn } from "@/lib/utils"

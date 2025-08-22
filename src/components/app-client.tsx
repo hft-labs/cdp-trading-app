@@ -3,7 +3,6 @@
 import { useIsInitialized, useIsSignedIn } from "@coinbase/cdp-hooks";
 import Loading from "@/components/loading";
 import SignInScreen from "@/components/sign-in-screen";
-import { AccountActivationGuard } from "@/components/account-activation-guard";
 
 export default function ClientApp({ children }: { children: React.ReactNode }) {
   const { isInitialized } = useIsInitialized();
@@ -15,9 +14,7 @@ export default function ClientApp({ children }: { children: React.ReactNode }) {
         <>
           {!isSignedIn && <SignInScreen />}
           {isSignedIn && (
-            <AccountActivationGuard>
-              {children}
-            </AccountActivationGuard>
+              <>{children}</>
           )}
         </>
       )}

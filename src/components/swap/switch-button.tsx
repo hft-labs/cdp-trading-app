@@ -23,7 +23,6 @@ export function SwitchButton() {
             onClick={handleSwitchTokens}
             variant="secondary"
             size="icon"
-            
         >
             <ArrowDown className="w-6 h-6 text-gray-300" />
         </Button>

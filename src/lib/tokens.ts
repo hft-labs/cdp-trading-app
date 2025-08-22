@@ -260,6 +260,11 @@ export function formatTokenAmount(amount: string, decimals: number): string {
         return formattedAmount.toExponential(6);
     }
     
+    // For amounts less than 1, show more precision
+    if (formattedAmount < 1) {
+        return formattedAmount.toFixed(8);
+    }
+    
     return formattedAmount.toFixed(6);
 }
 
@@ -267,24 +272,43 @@ export function formatTokenAmount(amount: string, decimals: number): string {
  * Parse ERC20 transfer input data
  */
 export function parseERC20Transfer(input: string): { from: string; to: string; amount: string } | null {
-    if (!input || !input.startsWith('0x23b872dd') || input.length < 138) {
+    if (!input || input.length < 74) {
         return null;
     }
     
     try {
-        // Extract from address (32 bytes starting at position 4)
-        const fromHex = input.slice(4, 68);
-        const from = '0x' + fromHex.slice(24); // Remove padding
+        // Handle transferFrom (0x23b872dd)
+        if (input.startsWith('0x23b872dd') && input.length >= 138) {
+            // Extract from address (32 bytes starting at position 4)
+            const fromHex = input.slice(4, 68);
+            const from = '0x' + fromHex.slice(24); // Remove padding
+            
+            // Extract to address (32 bytes starting at position 68)
+            const toHex = input.slice(68, 132);
+            const to = '0x' + toHex.slice(24); // Remove padding
+            
+            // Extract amount (32 bytes starting at position 138)
+            const amountHex = input.slice(138);
+            const amount = BigInt('0x' + amountHex).toString();
+            
+            return { from, to, amount };
+        }
         
-        // Extract to address (32 bytes starting at position 68)
-        const toHex = input.slice(68, 132);
-        const to = '0x' + toHex.slice(24); // Remove padding
+        // Handle transfer (0xa9059cbb)
+        if (input.startsWith('0xa9059cbb') && input.length >= 74) {
+            // Extract to address (32 bytes starting at position 4)
+            const toHex = input.slice(4, 68);
+            const to = '0x' + toHex.slice(24); // Remove padding
+            
+            // Extract amount (32 bytes starting at position 68)
+            const amountHex = input.slice(68);
+            const amount = BigInt('0x' + amountHex).toString();
+            
+            // For transfer, the 'from' address is the transaction sender (we'll get this from the transaction)
+            return { from: '', to, amount };
+        }
         
-        // Extract amount (32 bytes starting at position 138)
-        const amountHex = input.slice(138);
-        const amount = BigInt('0x' + amountHex).toString();
-        
-        return { from, to, amount };
+        return null;
     } catch (error) {
         console.error('Error parsing ERC20 transfer:', error);
         return null;

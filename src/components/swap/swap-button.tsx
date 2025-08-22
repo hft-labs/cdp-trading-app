@@ -15,7 +15,8 @@ export function SwapButton() {
   const { currentUser } = useCurrentUser();
   const isSignedIn = currentUser !== null;
   const { fromAmount, fromToken, toToken } = useSwapProvider();
-  const { evmAddress } = useEvmAddress();
+  //const { evmAddress } = useEvmAddress();
+  const evmAddress = currentUser?.evmAccounts?.[0]
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');

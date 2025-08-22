@@ -15,6 +15,7 @@ export interface SQLTransaction {
     contractAddress?: string;
     tokenSymbol?: string;
     tokenDecimals?: number;
+    description?: string;
     swapDetails?: {
         inputToken: string;
         outputToken: string;
@@ -79,7 +80,7 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
                         outputSymbol: tx.tokenOut.symbol,
                         inputDecimals: undefined,
                         outputDecimals: undefined,
-                        description: `Swap ${tx.tokenIn.amount || '0'} ${tx.tokenIn.symbol || 'tokens'} for ${tx.tokenOut.amount || '0'} ${tx.tokenOut.symbol || 'tokens'}`
+                        description: tx.description || `Swap ${tx.tokenIn.amount || '0'} ${tx.tokenIn.symbol || 'tokens'} for ${tx.tokenOut.amount || '0'} ${tx.tokenOut.symbol || 'tokens'}`
                     };
                 } else if (tx.swap) {
                     // Old format
@@ -92,7 +93,7 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
                         outputSymbol: tx.swap.outputSymbol,
                         inputDecimals: tx.swap.inputDecimals,
                         outputDecimals: tx.swap.outputDecimals,
-                        description: `Swap ${tx.swap.inputAmount || '0'} ${tx.swap.inputSymbol || 'tokens'} for ${tx.swap.outputAmount || '0'} ${tx.swap.outputSymbol || 'tokens'}`
+                        description: tx.description || `Swap ${tx.swap.inputAmount || '0'} ${tx.swap.inputSymbol || 'tokens'} for ${tx.swap.outputAmount || '0'} ${tx.swap.outputSymbol || 'tokens'}`
                     };
                 }
             }
@@ -104,7 +105,7 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
                 from: tx.from || '',
                 to: tx.to || '',
                 value: tx.value || '0',
-                asset: tx.asset || 'ETH',
+                asset: tx.asset || (tx.tokenSymbol || 'ETH'),
                 status: 'confirmed' as const,
                 blockNumber: tx.blockNumber || '0',
                 gasUsed: tx.gasUsed || '0',
@@ -112,14 +113,24 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
                 contractAddress: tx.contractAddress,
                 tokenSymbol: tx.tokenSymbol,
                 tokenDecimals: tx.tokenDecimals,
+                description: tx.description,
                 swapDetails,
             };
         }).filter(Boolean); // Remove null entries
 
         console.log(`Successfully parsed ${transactions.length} out of ${data.total} transactions (${data.failed} failed)`);
         
+        // Remove any duplicate transactions based on hash
+        const uniqueTransactions = transactions.filter((tx, index, self) => 
+            index === self.findIndex(t => t.hash === tx.hash)
+        );
+        
+        if (uniqueTransactions.length !== transactions.length) {
+            console.log(`Removed ${transactions.length - uniqueTransactions.length} duplicate transactions`);
+        }
+        
         // Debug timestamps
-        transactions.forEach((tx, index) => {
+        uniqueTransactions.forEach((tx, index) => {
             console.log(`Transaction ${index + 1} timestamp:`, {
                 original: tx.timestamp,
                 date: new Date(tx.timestamp),
@@ -127,7 +138,7 @@ async function getParsedTransactions(address: string, limit: number): Promise<SQ
             });
         });
         
-        return { transactions };
+        return { transactions: uniqueTransactions };
     } catch (error) {
         console.error('Parsed API Error:', error);
         throw error;
@@ -146,8 +157,10 @@ export const useSQLTransactions = (address: string | null, limit: number = 50) =
             return await getParsedTransactions(address, limit);
         },
         enabled: !!address,
-        refetchInterval: 30000, // Refetch every 30 seconds
-        staleTime: 10000, // Consider data stale after 10 seconds
+        refetchInterval: 60000, // Refetch every 60 seconds (reduced frequency)
+        staleTime: 30000, // Consider data stale after 30 seconds
+        refetchOnWindowFocus: false, // Don't refetch when window gains focus
+        refetchOnMount: true, // Only refetch on mount
     });
 
     return {

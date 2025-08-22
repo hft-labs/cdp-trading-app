@@ -22,6 +22,20 @@ export function SQLTransactionsTable() {
     
     const { transactions, isLoading: loading, error } = useSQLTransactions(evmAddress);
     
+    // Debug: Check for duplicates
+    const uniqueHashes = new Set();
+    const duplicates = transactions.filter(tx => {
+        if (uniqueHashes.has(tx.hash)) {
+            return true;
+        }
+        uniqueHashes.add(tx.hash);
+        return false;
+    });
+    
+    if (duplicates.length > 0) {
+        console.warn(`Found ${duplicates.length} duplicate transactions:`, duplicates.map(d => d.hash));
+    }
+    
     const { handleOnramp } = useOnramp({
         address: evmAddress as string,
         partnerUserId: currentUser?.userId as string,
@@ -47,6 +61,11 @@ export function SQLTransactionsTable() {
     };
 
     const getTransactionDescription = (tx: SQLTransaction) => {
+        // If we have a description from the API, use it
+        if (tx.description) {
+            return tx.description;
+        }
+        
         // If we have swap details, use them for a more accurate description
         if (tx.type === 'swap' && tx.swapDetails?.description) {
             console.log('Using swap details description:', tx.swapDetails.description);
@@ -178,7 +197,9 @@ export function SQLTransactionsTable() {
                     </TableRow>
                 </TableHeader>
                 <TableBody className="bg-black">
-                    {transactions.map((tx, idx) => (
+                    {transactions.filter((tx, index, self) => 
+                        index === self.findIndex(t => t.hash === tx.hash)
+                    ).map((tx, idx) => (
                         <TableRow
                             key={tx.hash}
                             className={`!border-0 transition-colors hover:bg-[#23242A]/60`}

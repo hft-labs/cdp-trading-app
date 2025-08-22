@@ -18,6 +18,7 @@ import { useCurrentUser, useEvmAddress } from "@coinbase/cdp-hooks";
 export function AssetsTable() {
     const { evmAddress } = useEvmAddress();
     const { currentUser } = useCurrentUser();
+    console.log('currentUser', currentUser);
     const { positions, isPending, error } = usePortfolio();
     const { handleOnramp } = useOnramp({
         address: evmAddress as string,
@@ -78,7 +79,22 @@ export function AssetsTable() {
         );
     }
 
-    const isEmpty = !positions || positions.length === 0 || positions.every((p) => !p.value || Number(p.value) === 0);
+    console.log('Portfolio positions:', positions);
+    console.log('Checking if portfolio is empty...');
+    console.log('Positions length:', positions?.length);
+    console.log('Positions with zero value:', positions?.filter(p => !p.value || Number(p.value) === 0).map(p => p.symbol));
+    console.log('All position values:', positions?.map(p => ({ symbol: p.symbol, value: p.value, balance: p.balance })));
+    
+    // Check if any position has a non-zero balance, even if value is 0 (for very small amounts)
+    const hasAnyBalance = positions?.some(p => {
+        const balanceNum = parseFloat(p.balance);
+        return balanceNum > 0;
+    });
+    
+    console.log('Has any balance:', hasAnyBalance);
+    
+    // Show positions if they have any balance, even if value is 0 (for very small amounts or failed price fetches)
+    const isEmpty = !positions || positions.length === 0 || !hasAnyBalance;
 
     if (isEmpty) {
         return (
@@ -112,6 +128,10 @@ export function AssetsTable() {
                         const price = position.price
                         const value = position.value
                         const token = position.symbol
+                        const balanceNum = parseFloat(position.balance)
+                        
+                        console.log(`Rendering position ${token}: balance=${position.balance}, value=${value}, balanceNum=${balanceNum}`);
+                        
                         if (!token) return null
                         return (
                             <TableRow
@@ -131,10 +151,26 @@ export function AssetsTable() {
                                         <span className="text-base font-semibold text-white/90">{token.toUpperCase()}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="px-6 py-4 text-zinc-300 align-middle font-medium">{position.balance}</TableCell>
-                                <TableCell className="px-6 py-4 text-zinc-300 align-middle font-medium">${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                <TableCell className="px-6 py-4 text-zinc-300 align-middle font-medium">
+                                    {parseFloat(position.balance) > 0 ? 
+                                        (parseFloat(position.balance) < 0.001 ? 
+                                            parseFloat(position.balance).toFixed(12) : 
+                                            position.balance
+                                        ) : 
+                                        '0.000000'
+                                    }
+                                </TableCell>
+                                <TableCell className="px-6 py-4 text-zinc-300 align-middle font-medium">
+                                    ${price > 0 ? price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                                </TableCell>
                                 <TableCell className="px-6 py-4 text-right text-zinc-300 align-middle font-medium">
-                                    ${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    ${value > 0 ? 
+                                        (value < 0.01 ? 
+                                            value.toFixed(6) : 
+                                            value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                        ) : 
+                                        '0.00'
+                                    }
                                 </TableCell>
                             </TableRow>
                         )

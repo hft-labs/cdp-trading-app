@@ -27,11 +27,14 @@ export const usePortfolio = () => {
             if (!evmAddress) {
                 throw new Error("Address is required");
             }
+            console.log('Fetching portfolio for address:', evmAddress);
             const response = await fetch(`/api/portfolio?address=${evmAddress}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch portfolio data");
             }
-            return response.json();
+            const result = await response.json();
+            console.log('Portfolio API response:', result);
+            return result;
             },
             enabled: !!evmAddress && isInitialized,
         refetchInterval: 5000, // Refetch every 5 seconds

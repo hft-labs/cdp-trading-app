@@ -6,7 +6,6 @@ export default function Loading() {
   return (
     <main>
       <h1 className="sr-only">Loading</h1>
-      <LoadingSpinner />
     </main>
   );
 }

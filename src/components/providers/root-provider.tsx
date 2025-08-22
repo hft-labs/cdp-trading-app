@@ -5,24 +5,23 @@ import { ThemeProvider } from "next-themes";
 import { getQueryClient } from '@/lib/get-query-client';
 import { CDPReactProvider, type Theme } from '@coinbase/cdp-react';
 import { CDPHooksProvider } from '@coinbase/cdp-hooks';
+import { Config } from '@coinbase/cdp-core';
 
 if (!process.env.NEXT_PUBLIC_COINBASE_APP_ID) {
 	throw new Error("NEXT_PUBLIC_COINBASE_APP_ID is not set");
 }
 
-const cdpConfig = {
-	projectId: process.env.NEXT_PUBLIC_COINBASE_APP_ID
+const cdpConfig: Config = {
+	projectId: process.env.NEXT_PUBLIC_COINBASE_APP_ID,
+	createAccountOnLogin: "evm-smart",
 }
 
-
-// Global config for your dapp
 const appConfig = {
-	name: "My app", // the name of your application
-	logoUrl: "https://picsum.photos/64", // logo will be displayed in select components
+	name: "Swapper",
+	logoUrl: "https://picsum.photos/64",
 }
 
 
-// You can customize the theme by overriding theme variables
 const themeOverrides: Partial<Theme> = {
 	"colors-bg-default": "black",
 	"colors-bg-alternate": "#121212",
