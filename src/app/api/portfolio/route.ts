@@ -18,7 +18,11 @@ export async function GET(request: Request) {
             network: "base",
         });
 
-        console.log('Raw balance response:', JSON.stringify(page, null, 2));
+        console.log('Raw balance response:', {
+            balances: page.balances?.length || 0,
+            hasBalances: !!page.balances,
+            balanceCount: page.balances?.length || 0
+        });
 
         if (!page.balances || page.balances.length === 0) {
             console.log('No balances found');
@@ -32,7 +36,7 @@ export async function GET(request: Request) {
             console.log(`Balance ${index}:`, {
                 symbol: balance.token?.symbol,
                 contractAddress: balance.token?.contractAddress,
-                amount: balance.amount?.amount,
+                amount: balance.amount?.amount?.toString(),
                 decimals: balance.amount?.decimals
             });
         });
