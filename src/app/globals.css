@@ -44,6 +44,180 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* CDP Theme Overrides - Light Mode */
+:root {
+  --cdp-color-background: var(--background);
+  --cdp-color-foreground: var(--foreground);
+  --cdp-color-card: var(--card);
+  --cdp-color-card-foreground: var(--card-foreground);
+  --cdp-color-popover: var(--popover);
+  --cdp-color-popover-foreground: var(--popover-foreground);
+  --cdp-color-primary: var(--primary);
+  --cdp-color-primary-foreground: var(--primary-foreground);
+  --cdp-color-secondary: var(--secondary);
+  --cdp-color-secondary-foreground: var(--secondary-foreground);
+  --cdp-color-muted: var(--muted);
+  --cdp-color-muted-foreground: var(--muted-foreground);
+  --cdp-color-accent: var(--accent);
+  --cdp-color-accent-foreground: var(--accent-foreground);
+  --cdp-color-destructive: var(--destructive);
+  --cdp-color-border: var(--border);
+  --cdp-color-input: var(--input);
+  --cdp-color-ring: var(--ring);
+  --cdp-radius: var(--radius);
+}
+
+/* CDP Theme Overrides - Dark Mode */
+.dark {
+  --ds-blue-400: #93C5FD;
+  --ds-blue-500: #60A5FA;
+  --ds-blue-600: #3B82F6;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  
+  /* CDP Dark Mode Overrides */
+  --cdp-color-background: var(--background);
+  --cdp-color-foreground: var(--foreground);
+  --cdp-color-card: var(--card);
+  --cdp-color-card-foreground: var(--card-foreground);
+  --cdp-color-popover: var(--popover);
+  --cdp-color-popover-foreground: var(--popover-foreground);
+  --cdp-color-primary: var(--primary);
+  --cdp-color-primary-foreground: var(--primary-foreground);
+  --cdp-color-secondary: var(--secondary);
+  --cdp-color-secondary-foreground: var(--secondary-foreground);
+  --cdp-color-muted: var(--muted);
+  --cdp-color-muted-foreground: var(--muted-foreground);
+  --cdp-color-accent: var(--accent);
+  --cdp-color-accent-foreground: var(--accent-foreground);
+  --cdp-color-destructive: var(--destructive);
+  --cdp-color-border: var(--border);
+  --cdp-color-input: var(--input);
+  --cdp-color-ring: var(--ring);
+  --cdp-radius: var(--radius);
+}
+
+/* CDP Component Styling */
+[data-cdp-auth-button] {
+  --cdp-button-background: var(--cdp-color-primary);
+  --cdp-button-foreground: var(--cdp-color-primary-foreground);
+  --cdp-button-border: var(--cdp-color-border);
+  --cdp-button-radius: var(--cdp-radius);
+}
+
+/* CDP Modal/Dialog Styling */
+[data-cdp-modal],
+[data-cdp-dialog],
+[data-cdp-popover] {
+  --cdp-modal-background: var(--cdp-color-card);
+  --cdp-modal-foreground: var(--cdp-color-card-foreground);
+  --cdp-modal-border: var(--cdp-color-border);
+  --cdp-modal-radius: var(--cdp-radius);
+  --cdp-modal-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* CDP Input Styling */
+[data-cdp-input] {
+  --cdp-input-background: var(--cdp-color-input);
+  --cdp-input-foreground: var(--cdp-color-foreground);
+  --cdp-input-border: var(--cdp-color-border);
+  --cdp-input-radius: var(--cdp-radius);
+}
+
+/* CDP Button Styling */
+[data-cdp-button] {
+  --cdp-button-background: var(--cdp-color-primary);
+  --cdp-button-foreground: var(--cdp-color-primary-foreground);
+  --cdp-button-border: var(--cdp-color-border);
+  --cdp-button-radius: var(--cdp-radius);
+}
+
+/* Apply CDP theme to all CDP components */
+[data-cdp-auth-button] *,
+[data-cdp-modal] *,
+[data-cdp-dialog] *,
+[data-cdp-popover] * {
+  color: var(--cdp-color-foreground);
+  background-color: var(--cdp-color-background);
+  border-color: var(--cdp-color-border);
+}
+
+/* Specific CDP AuthButton styling */
+[data-cdp-auth-button] button {
+  background-color: var(--cdp-color-primary) !important;
+  color: var(--cdp-color-primary-foreground) !important;
+  border: 1px solid var(--cdp-color-border) !important;
+  border-radius: var(--cdp-radius) !important;
+  padding: 0.5rem 1rem !important;
+  font-weight: 500 !important;
+  transition: all 0.2s !important;
+}
+
+[data-cdp-auth-button] button:hover {
+  background-color: var(--cdp-color-primary) !important;
+  opacity: 0.9 !important;
+}
+
+/* CDP Modal styling */
+[data-cdp-modal] {
+  background-color: var(--cdp-color-card) !important;
+  color: var(--cdp-color-card-foreground) !important;
+  border: 1px solid var(--cdp-color-border) !important;
+  border-radius: var(--cdp-radius) !important;
+  box-shadow: var(--cdp-modal-shadow) !important;
+}
+
+/* CDP Input styling */
+[data-cdp-modal] input,
+[data-cdp-modal] textarea {
+  background-color: var(--cdp-color-input) !important;
+  color: var(--cdp-color-foreground) !important;
+  border: 1px solid var(--cdp-color-border) !important;
+  border-radius: var(--cdp-radius) !important;
+}
+
+/* CDP Button styling in modal */
+[data-cdp-modal] button {
+  background-color: var(--cdp-color-primary) !important;
+  color: var(--cdp-color-primary-foreground) !important;
+  border: 1px solid var(--cdp-color-border) !important;
+  border-radius: var(--cdp-radius) !important;
+}
+
+[data-cdp-modal] button:hover {
+  background-color: var(--cdp-color-primary) !important;
+  opacity: 0.9 !important;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -82,43 +256,6 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-}
-
-.dark {
-  --ds-blue-400: #93C5FD;
-  --ds-blue-500: #60A5FA;
-  --ds-blue-600: #3B82F6;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {

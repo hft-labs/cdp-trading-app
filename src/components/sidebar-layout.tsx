@@ -18,7 +18,7 @@ import {
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Logo } from "./logo";
-import { AuthButton } from '@coinbase/cdp-react/components/AuthButton';
+import { AuthButton } from '@/components/ui/auth-button';
 import { useCurrentUser } from "@coinbase/cdp-hooks";
 
 type BreadcrumbItem = { item: React.ReactNode, href: string }

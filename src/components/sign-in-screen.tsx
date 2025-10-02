@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthButton } from "@coinbase/cdp-react/components/AuthButton";
+import { AuthButton } from "@/components/ui/auth-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Typography } from "@/components/ui/typography";
 

@@ -8,9 +8,10 @@ import { useEvmAddress } from "@coinbase/cdp-hooks";
 import { useCallback } from "react";
 
 import { getBuyOptions, createBuyQuote } from "@/lib/onramp-api";
+import { Button } from "@/components/ui/button";
 
 /**
- * A component that wraps the FundModal component
+ * A component that wraps the FundModal component with a shadcn Button trigger
  *
  * @param props - The props for the FundWallet component
  * @param props.onSuccess - The callback function to call when the onramp purchase is successful
@@ -47,6 +48,10 @@ export default function FundWallet({ onSuccess }: { onSuccess: () => void }) {
       presetAmountInputs={[10, 25, 50]}
       onSuccess={onSuccess}
       destinationAddress={evmAddress as string}
-    />
+    >
+      <Button variant="default" size="default">
+        Fund Wallet
+      </Button>
+    </FundModal>
   );
 }
