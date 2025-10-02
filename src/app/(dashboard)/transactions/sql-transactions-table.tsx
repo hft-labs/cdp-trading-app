@@ -201,7 +201,7 @@ export function SQLTransactionsTable() {
                         index === self.findIndex(t => t.hash === tx.hash)
                     ).map((tx, idx) => (
                         <TableRow
-                            key={tx.hash}
+                            key={`${tx.hash}-${idx}`}
                             className={`!border-0 transition-colors hover:bg-[#23242A]/60`}
                         >
                             <TableCell className="font-semibold px-6 py-4 text-white/90 align-middle">
