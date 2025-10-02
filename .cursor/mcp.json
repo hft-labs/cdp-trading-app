@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+        "shadcn": {
+            "url": "https://www.shadcn.io/api/mcp"
+        },
+        "coinbase-cdp": {
+            "url": "https://docs.cdp.coinbase.com/mcp"
+        }
+    }
+}
