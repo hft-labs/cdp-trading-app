@@ -11,15 +11,15 @@ if (!process.env.NEXT_PUBLIC_COINBASE_APP_ID) {
 	throw new Error("NEXT_PUBLIC_COINBASE_APP_ID is not set");
 }
 
-const cdpConfig: Config = {
-	projectId: process.env.NEXT_PUBLIC_COINBASE_APP_ID,
-	createAccountOnLogin: "evm-smart",
-}
-
-const appConfig = {
-	name: "Swapper",
-	logoUrl: "https://picsum.photos/64",
-}
+const CDP_CONFIG = {
+	projectId: process.env.NEXT_PUBLIC_COINBASE_APP_ID ?? "",
+	ethereum: {
+		createOnLogin: 'eoa',
+	},
+	appName: "CDP Next.js StarterKit",
+	appLogoUrl: "http://localhost:3000/logo.svg",
+	authMethods: ["email", "sms"],
+} as Config;
 
 
 const themeOverrides: Partial<Theme> = {
@@ -34,8 +34,8 @@ export function RootProviders({ children }: { children: React.ReactNode }) {
 	const queryClient = getQueryClient()
 	return (
 		<ThemeProvider defaultTheme="dark" attribute="class">
-			<CDPReactProvider config={cdpConfig} app={appConfig} theme={themeOverrides}>
-				<CDPHooksProvider config={cdpConfig}>
+			<CDPReactProvider config={CDP_CONFIG} theme={themeOverrides}>
+				<CDPHooksProvider config={CDP_CONFIG}>
 					<QueryClientProvider client={queryClient}>
 						{children}
 					</QueryClientProvider>
